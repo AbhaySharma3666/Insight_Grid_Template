@@ -174,49 +174,18 @@ const prompt = ai.definePrompt({
 Consider the following dashboard purpose: "{{{dashboardPurpose}}}".
 
 Provide a detailed JSON output according to the specified schema, including:
--   canvas: Overall canvas properties like aspect ratio and background.
--   mainGrid: The main content grid layout, including column and row definitions, gaps, and styling options. For widthFraction and heightFraction, ensure they sum up to 1 for their respective arrays.
--   sidePanel: Configuration for an optional side panel, its position, width, and an internal grid layout if present. If no side panel is suitable, set position to "none". For widthFraction and heightFraction in sidePanel.internalGrid, ensure they sum up to 1 for their respective arrays.
--   description: A brief explanation of why this layout is suitable for the given purpose.
+- canvas: Overall canvas properties like aspect ratio and background.
+- mainGrid: The main content grid layout, including column and row definitions, gaps, and styling options. For widthFraction and heightFraction, ensure they sum up to 1 for their respective arrays.
+- sidePanel: Configuration for an optional side panel, its position, width, and an internal grid layout if present. If no side panel is suitable, set position to "none". For widthFraction and heightFraction in sidePanel.internalGrid, ensure they sum up to 1 for their respective arrays.
+- description: A brief explanation of why this layout is suitable for the given purpose.
 
 When defining column and row widthFraction or heightFraction arrays, make sure their values sum to 1. For example, if you have two columns, their widthFraction might be [0.6, 0.4].
 
 Here are some general guidelines for common dashboard types:
--   Sales Overview: Often uses a 16:9 ratio, multiple columns for different metrics (e.g., sales by region, product, time), and potentially a right-side panel for filters or key performance indicators. Grids might be prominent with subtle borders.
--   Executive Summary: Typically clean and minimalist, 16:9 or 4:3, fewer but larger panels, perhaps a top-level summary, a key metrics section, and a trend analysis. A side panel might be used for navigation or high-level summaries.
--   Operational Dashboard: Can be dense, often 16:9, with many smaller visuals for real-time data. A left-side panel might be useful for quick navigation or alert summaries.
--   Financial Report: Structured, often tabular, 4:3 or 16:9, clear separation of sections. May or may not include a side panel.
-
-Example for a 'simple report' with no side panel, two columns (60/40), and two rows (70/30):
-\`\`\`json
-{
-  "canvas": {
-    "aspectRatio": "16:9",
-    "backgroundColor": "#FFFFFF",
-    "hasBackgroundImage": false
-  },
-  "mainGrid": {
-    "columns": [
-      {"widthFraction": 0.6},
-      {"widthFraction": 0.4}
-    ],
-    "rows": [
-      {"heightFraction": 0.7},
-      {"heightFraction": 0.3}
-    ],
-    "columnGap": 10,
-    "rowGap": 10,
-    "hasShadow": false,
-    "hasBorder": true,
-    "borderColor": "#DDDDDD"
-  },
-  "sidePanel": {
-    "position": "none"
-  },
-  "description": "A simple layout with a main content area for key metrics and a secondary area for details."
-}
-\`\`\`
-`,
+- Sales Overview: Often uses a 16:9 ratio, multiple columns for different metrics (e.g., sales by region, product, time), and potentially a right-side panel for filters or key performance indicators. Grids might be prominent with subtle borders.
+- Executive Summary: Typically clean and minimalist, 16:9 or 4:3, fewer but larger panels, perhaps a top-level summary, a key metrics section, and a trend analysis. A side panel might be used for navigation or high-level summaries.
+- Operational Dashboard: Can be dense, often 16:9, with many smaller visuals for real-time data. A left-side panel might be useful for quick navigation or alert summaries.
+- Financial Report: Structured, often tabular, 4:3 or 16:9, clear separation of sections. May or may not include a side panel.`,
 });
 
 const aiLayoutSuggestionFlow = ai.defineFlow(
