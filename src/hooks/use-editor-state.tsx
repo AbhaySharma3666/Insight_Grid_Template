@@ -15,18 +15,17 @@ interface RowDefinition {
   columns: ColumnDefinition[];
 }
 
-interface SimpleGridDef {
-  widthFraction: number;
-}
-
-interface SimpleRowDef {
-  heightFraction: number;
-}
-
 interface CanvasState {
   aspectRatio: string;
   backgroundColor: string;
   backgroundImage: string | null;
+  header: {
+    enabled: boolean;
+    heightFraction: number;
+    columns: ColumnDefinition[];
+    hasShadow: boolean;
+    hasBorder: boolean;
+  };
   mainGrid: {
     rows: RowDefinition[];
     columnGap: number;
@@ -55,11 +54,21 @@ const DEFAULT_STATE: CanvasState = {
   aspectRatio: '16:9',
   backgroundColor: '#ECF0F7',
   backgroundImage: null,
+  header: {
+    enabled: true,
+    heightFraction: 0.12,
+    hasShadow: true,
+    hasBorder: false,
+    columns: [
+      { id: 'h-col-1', widthFraction: 0.3 },
+      { id: 'h-col-2', widthFraction: 0.7 },
+    ]
+  },
   mainGrid: {
     rows: [
       {
         id: 'r1',
-        heightFraction: 0.2,
+        heightFraction: 0.25,
         columns: [
           { id: 'r1c1', widthFraction: 0.25 },
           { id: 'r1c2', widthFraction: 0.25 },
@@ -69,10 +78,10 @@ const DEFAULT_STATE: CanvasState = {
       },
       {
         id: 'r2',
-        heightFraction: 0.8,
+        heightFraction: 0.75,
         columns: [
-          { id: 'r2c1', widthFraction: 0.6 },
-          { id: 'r2c2', widthFraction: 0.4 },
+          { id: 'r2c1', widthFraction: 0.65 },
+          { id: 'r2c2', widthFraction: 0.35 },
         ]
       }
     ],
@@ -124,6 +133,15 @@ export function EditorProvider({ children }: { children: React.ReactNode }) {
       ...prev,
       aspectRatio: suggestion.canvas.aspectRatio,
       backgroundColor: suggestion.canvas.backgroundColor,
+      header: {
+        ...prev.header,
+        enabled: !!suggestion.header,
+        heightFraction: suggestion.header?.heightFraction || 0.12,
+        columns: suggestion.header?.columns.map((col, idx) => ({
+          id: `h-col-${idx}-${Date.now()}`,
+          widthFraction: col.widthFraction
+        })) || prev.header.columns
+      },
       mainGrid: {
         ...prev.mainGrid,
         rows: suggestion.mainGrid.rows.map((row, rIdx) => ({

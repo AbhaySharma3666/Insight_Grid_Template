@@ -119,11 +119,39 @@ export function CanvasArea() {
             </div>
           )}
 
-          {/* Main Content Area - Flexible Rows and Columns */}
+          {/* Main Content Area */}
           <div 
             className="flex-1 h-full flex flex-col"
             style={{ gap: `${canvasState.mainGrid.rowGap}px` }}
           >
+            {/* Optional Header Row */}
+            {canvasState.header.enabled && (
+              <div 
+                className="flex flex-row shrink-0"
+                style={{ 
+                  height: `${canvasState.header.heightFraction * 100}%`,
+                  gap: `${canvasState.mainGrid.columnGap}px` 
+                }}
+              >
+                {canvasState.header.columns.map((col, cIdx) => (
+                  <div 
+                    key={col.id}
+                    className={cn(
+                      "rounded-xl grid-item-shadow",
+                      canvasState.header.hasShadow && "shadow-md",
+                      canvasState.header.hasBorder && "border"
+                    )}
+                    style={{
+                      width: `${col.widthFraction * 100}%`,
+                      backgroundColor: 'rgba(255,255,255,0.9)',
+                      borderColor: canvasState.mainGrid.borderColor || 'rgba(0,0,0,0.1)',
+                    }}
+                  />
+                ))}
+              </div>
+            )}
+
+            {/* Grid Rows */}
             {canvasState.mainGrid.rows.map((row, rIdx) => (
               <div 
                 key={row.id} 
