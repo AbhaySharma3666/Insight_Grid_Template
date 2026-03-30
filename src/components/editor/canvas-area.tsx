@@ -184,9 +184,10 @@ export function CanvasArea() {
                 className="h-full shrink-0 relative overflow-hidden"
                 style={{ 
                   width: `${sidePanelWidth}px`,
-                  backgroundColor: 'rgba(255,255,255,0.4)',
+                  backgroundColor: `rgba(255,255,255,${canvasState.sidePanel.internalGrid ? '0.4' : canvasState.sidePanel.opacity})`,
                   borderRadius: '12px',
-                  border: '1px solid rgba(0,0,0,0.05)'
+                  border: '1px solid rgba(0,0,0,0.05)',
+                  transition: 'background-color 0.3s ease'
                 }}
               >
                 {canvasState.sidePanel.internalGrid && (

@@ -55,6 +55,7 @@ interface CanvasState {
     position: 'left' | 'right' | 'none';
     widthPercentage: number;
     panelGap: number;
+    opacity: number;
     internalGrid?: {
       columns: ColumnDefinition[];
       rows: { heightFraction: number }[];
@@ -121,6 +122,7 @@ const DEFAULT_STATE: CanvasState = {
     position: 'left',
     widthPercentage: 20,
     panelGap: 20,
+    opacity: 0.4,
     internalGrid: {
       columns: [{ id: 's-col-1', widthFraction: 1, borderRadius: 8, opacity: 1 }],
       rows: Array(5).fill(null).map(() => ({ heightFraction: 0.2 })),
@@ -199,6 +201,7 @@ export function EditorProvider({ children }: { children: React.ReactNode }) {
         position: suggestion.sidePanel.position,
         widthPercentage: suggestion.sidePanel.widthPercentage || 20,
         panelGap: suggestion.sidePanel.panelGap || 20,
+        opacity: prev.sidePanel.opacity,
         internalGrid: suggestion.sidePanel.internalGrid ? {
           ...suggestion.sidePanel.internalGrid,
           columns: suggestion.sidePanel.internalGrid.columns.map((c, idx) => ({

@@ -7,7 +7,7 @@ import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Slider } from '@/components/ui/slider';
 import { Switch } from '@/components/ui/switch';
 import { Button } from '@/components/ui/button';
-import { Plus, Trash2, GripVertical } from 'lucide-react';
+import { Plus, Trash2 } from 'lucide-react';
 
 export function SidePanelSettings() {
   const { canvasState, setCanvasState } = useEditor();
@@ -199,6 +199,23 @@ export function SidePanelSettings() {
               }))}
             />
           </div>
+
+          {!canvasState.sidePanel.internalGrid && (
+            <div className="space-y-3 animate-fade-in pt-4 border-t">
+              <div className="flex justify-between">
+                <Label className="text-primary font-bold">Panel Opacity</Label>
+                <span className="text-xs font-mono">{Math.round(canvasState.sidePanel.opacity * 100)}%</span>
+              </div>
+              <Slider 
+                value={[canvasState.sidePanel.opacity * 100]} 
+                min={0} max={100} step={5}
+                onValueChange={(val) => setCanvasState(prev => ({ 
+                  ...prev, 
+                  sidePanel: { ...prev.sidePanel, opacity: val[0] / 100 } 
+                }))}
+              />
+            </div>
+          )}
 
           <div className="space-y-4 pt-4 border-t">
             <div className="flex items-center justify-between">
