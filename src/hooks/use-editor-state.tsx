@@ -28,6 +28,7 @@ interface CanvasState {
   layoutType: 'grid' | 'freeform' | 'autofit';
   backgroundColor: string;
   canvasPadding: number;
+  layoutGap: number; // Space between Header and Body
   backgroundImage: string | null;
   backgroundGradient: {
     enabled: boolean;
@@ -71,6 +72,7 @@ const DEFAULT_STATE: CanvasState = {
   layoutType: 'grid',
   backgroundColor: '#ECF0F7',
   canvasPadding: 24,
+  layoutGap: 20,
   backgroundImage: null,
   backgroundGradient: {
     enabled: false,

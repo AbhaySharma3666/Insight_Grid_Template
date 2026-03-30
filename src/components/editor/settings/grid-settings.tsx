@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Switch } from '@/components/ui/switch';
 import { Slider } from '@/components/ui/slider';
 import { Input } from '@/components/ui/input';
-import { Trash2, Plus, GripVertical, Columns, PanelTop, LayoutGrid, Palette } from 'lucide-react';
+import { Trash2, Plus, GripVertical, Columns, PanelTop, LayoutGrid, Palette, MoveVertical } from 'lucide-react';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { HeaderSettings } from './header-settings';
 
@@ -93,7 +93,7 @@ export function GridSettings() {
   const isFreeform = canvasState.layoutType === 'freeform';
 
   return (
-    <div className="animate-fade-in">
+    <div className="animate-fade-in space-y-4">
       <Accordion type="single" collapsible defaultValue="main-grid" className="space-y-4">
         {/* Header Configuration Section */}
         <AccordionItem value="header" className="border rounded-lg px-4 bg-muted/5">
@@ -107,6 +107,25 @@ export function GridSettings() {
             <HeaderSettings />
           </AccordionContent>
         </AccordionItem>
+
+        {/* Global Layout Spacing Section */}
+        <div className="border rounded-lg px-4 py-4 bg-muted/5 space-y-4">
+          <div className="flex items-center gap-2 mb-2">
+            <MoveVertical className="w-4 h-4 text-primary" />
+            <span className="text-sm font-bold uppercase tracking-wider text-muted-foreground">Vertical Flow</span>
+          </div>
+          <div className="space-y-3">
+            <div className="flex justify-between">
+              <Label className="text-xs">Header to Body Gap</Label>
+              <span className="text-xs font-mono">{canvasState.layoutGap}px</span>
+            </div>
+            <Slider 
+              value={[canvasState.layoutGap]} 
+              min={0} max={100} step={2}
+              onValueChange={(val) => setCanvasState(prev => ({ ...prev, layoutGap: val[0] }))}
+            />
+          </div>
+        </div>
 
         {/* Main Grid Rows Section */}
         <AccordionItem value="main-grid" className="border rounded-lg px-4 bg-muted/5">
@@ -283,12 +302,12 @@ export function GridSettings() {
                 <>
                   <div className="space-y-3">
                     <div className="flex justify-between">
-                      <Label className="text-xs">Horizontal Gap</Label>
+                      <Label className="text-xs">Main Grid Column Gap</Label>
                       <span className="text-xs text-muted-foreground">{canvasState.mainGrid.columnGap}px</span>
                     </div>
                     <Slider 
                       value={[canvasState.mainGrid.columnGap]} 
-                      min={0} max={50} step={2}
+                      min={0} max={100} step={2}
                       onValueChange={(val) => setCanvasState(prev => ({ 
                         ...prev, 
                         mainGrid: { ...prev.mainGrid, columnGap: val[0] } 
@@ -298,12 +317,12 @@ export function GridSettings() {
 
                   <div className="space-y-3">
                     <div className="flex justify-between">
-                      <Label className="text-xs">Vertical Gap</Label>
+                      <Label className="text-xs">Main Grid Row Gap</Label>
                       <span className="text-xs text-muted-foreground">{canvasState.mainGrid.rowGap}px</span>
                     </div>
                     <Slider 
                       value={[canvasState.mainGrid.rowGap]} 
-                      min={0} max={50} step={2}
+                      min={0} max={100} step={2}
                       onValueChange={(val) => setCanvasState(prev => ({ 
                         ...prev, 
                         mainGrid: { ...prev.mainGrid, rowGap: val[0] } 
@@ -315,12 +334,12 @@ export function GridSettings() {
 
               <div className="space-y-4">
                 <Label className="text-xs font-bold uppercase text-muted-foreground flex items-center gap-2">
-                  <Palette className="w-3 h-3" /> Grid Styling
+                  <Palette className="w-3 h-3" /> Styling Overrides
                 </Label>
                 
                 <div className="space-y-3 bg-muted/10 p-3 rounded-lg border border-dashed">
                   <div className="flex items-center justify-between">
-                    <Label className="text-xs">Grid Shadows</Label>
+                    <Label className="text-xs">Main Shadows</Label>
                     <Switch 
                       checked={canvasState.mainGrid.hasShadow} 
                       onCheckedChange={(val) => setCanvasState(prev => ({ 
@@ -332,7 +351,7 @@ export function GridSettings() {
 
                   <div className="space-y-3">
                     <div className="flex items-center justify-between">
-                      <Label className="text-xs">Grid Borders</Label>
+                      <Label className="text-xs">Main Borders</Label>
                       <Switch 
                         checked={canvasState.mainGrid.hasBorder} 
                         onCheckedChange={(val) => setCanvasState(prev => ({ 

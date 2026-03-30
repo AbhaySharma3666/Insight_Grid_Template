@@ -139,7 +139,7 @@ export function CanvasArea() {
           className="flex flex-col w-full h-full"
           style={{ 
             padding: `${canvasState.canvasPadding}px`,
-            gap: `${canvasState.mainGrid.rowGap}px` 
+            gap: `${canvasState.layoutGap}px` 
           }}
         >
           {/* Top Header Row */}
