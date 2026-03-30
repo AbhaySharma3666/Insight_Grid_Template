@@ -1,13 +1,13 @@
 "use client";
 
 import React from 'react';
-import { useEditor } from '@/hooks/use-editor-state';
+import { useEditor, ColumnDefinition, RowDefinition } from '@/hooks/use-editor-state';
 import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
 import { Switch } from '@/components/ui/switch';
 import { Slider } from '@/components/ui/slider';
 import { Input } from '@/components/ui/input';
-import { Trash2, Plus, GripVertical, Columns, PanelTop, LayoutGrid, Palette, MoveVertical, Maximize } from 'lucide-react';
+import { Trash2, Plus, GripVertical, Columns, PanelTop, LayoutGrid, Palette, MoveVertical, Maximize, ListTree } from 'lucide-react';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { HeaderSettings } from './header-settings';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -88,6 +88,28 @@ export function GridSettings() {
       if (row.columns.length <= 1) return prev;
       const newCols = row.columns.filter((_, i) => i !== colIndex);
       newRows[rowIndex] = { ...row, columns: newCols };
+      return { ...prev, mainGrid: { ...prev.mainGrid, rows: newRows } };
+    });
+  };
+
+  const addNestedRowToColumn = (rowIndex: number, colIndex: number) => {
+    setCanvasState(prev => {
+      const newRows = [...prev.mainGrid.rows];
+      const col = { ...newRows[rowIndex].columns[colIndex] };
+      const currentNested = col.nestedRows || [];
+      const newNestedRows = [...currentNested, {
+        id: `nested-row-${Date.now()}`,
+        heightFraction: 1,
+        columns: [{ id: `nested-col-${Date.now()}`, widthFraction: 1, borderRadius: 8, opacity: 1, backgroundColor: 'rgba(255,255,255,0.8)' }]
+      }];
+      
+      const total = newNestedRows.length;
+      col.nestedRows = newNestedRows.map(nr => ({ ...nr, heightFraction: 1 / total }));
+      
+      const newCols = [...newRows[rowIndex].columns];
+      newCols[colIndex] = col;
+      newRows[rowIndex] = { ...newRows[rowIndex], columns: newCols };
+      
       return { ...prev, mainGrid: { ...prev.mainGrid, rows: newRows } };
     });
   };
@@ -245,13 +267,22 @@ export function GridSettings() {
                           <div key={col.id} className="space-y-4 bg-muted/10 p-3 rounded border border-dashed">
                             <div className="flex items-center justify-between">
                               <span className="text-[10px] font-bold">Cell {cIdx + 1}</span>
-                              <Button 
-                                variant="ghost" size="icon" className="h-5 w-5 text-destructive hover:bg-destructive/10"
-                                onClick={() => removeColumnFromRow(rIdx, cIdx)}
-                                disabled={row.columns.length <= 1}
-                              >
-                                <Trash2 className="w-3.5 h-3.5" />
-                              </Button>
+                              <div className="flex items-center gap-1">
+                                <Button 
+                                  variant="ghost" size="icon" className="h-6 w-6 text-primary hover:bg-primary/10"
+                                  onClick={() => addNestedRowToColumn(rIdx, cIdx)}
+                                  title="Add Nested Rows"
+                                >
+                                  <ListTree className="w-3.5 h-3.5" />
+                                </Button>
+                                <Button 
+                                  variant="ghost" size="icon" className="h-5 w-5 text-destructive hover:bg-destructive/10"
+                                  onClick={() => removeColumnFromRow(rIdx, cIdx)}
+                                  disabled={row.columns.length <= 1}
+                                >
+                                  <Trash2 className="w-3.5 h-3.5" />
+                                </Button>
+                              </div>
                             </div>
 
                             {canvasState.mainGrid.colorMode === 'individual' && (
@@ -360,6 +391,20 @@ export function GridSettings() {
                                 onValueChange={(val) => updateColumnProperty(rIdx, cIdx, 'opacity', val[0] / 100)}
                               />
                             </div>
+
+                            {col.nestedRows && col.nestedRows.length > 0 && (
+                              <div className="pt-2 border-t mt-2">
+                                <Label className="text-[8px] font-bold uppercase text-muted-foreground">Contains {col.nestedRows.length} Sub-Rows</Label>
+                                <Button 
+                                  variant="ghost" 
+                                  size="sm" 
+                                  className="h-6 w-full text-[8px] uppercase mt-1 hover:bg-destructive/10 text-destructive"
+                                  onClick={() => updateColumnProperty(rIdx, cIdx, 'nestedRows', [])}
+                                >
+                                  Clear Sub-Rows
+                                </Button>
+                              </div>
+                            )}
                           </div>
                         ))}
                       </div>

@@ -16,9 +16,10 @@ export interface ColumnDefinition {
   y?: number;
   w?: number;
   h?: number;
+  nestedRows?: RowDefinition[];
 }
 
-interface RowDefinition {
+export interface RowDefinition {
   id: string;
   heightFraction: number;
   columns: ColumnDefinition[];

@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useRef, useEffect, useState, useCallback } from 'react';
-import { useEditor } from '@/hooks/use-editor-state';
+import { useEditor, ColumnDefinition, RowDefinition } from '@/hooks/use-editor-state';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { Plus, Minus, RotateCcw, Move } from 'lucide-react';
@@ -105,6 +105,54 @@ export function CanvasArea() {
     return {
       backgroundColor: canvasState.backgroundColor,
     };
+  };
+
+  const RenderColumn = ({ col, style, className }: { col: ColumnDefinition, style: React.CSSProperties, className?: string }) => {
+    const hasNestedRows = col.nestedRows && col.nestedRows.length > 0;
+
+    return (
+      <div 
+        className={cn("relative overflow-hidden", className)}
+        style={{
+          ...style,
+          display: hasNestedRows ? 'flex' : 'block',
+          flexDirection: 'column',
+          gap: `${canvasState.mainGrid.rowGap / 2}px`,
+          padding: hasNestedRows ? '8px' : '0'
+        }}
+      >
+        {hasNestedRows ? (
+          col.nestedRows!.map((nRow) => (
+            <div 
+              key={nRow.id}
+              className="flex w-full"
+              style={{ 
+                height: `${nRow.heightFraction * 100}%`,
+                gap: `${canvasState.mainGrid.columnGap / 2}px`
+              }}
+            >
+              {nRow.columns.map((nCol) => (
+                <div 
+                  key={nCol.id}
+                  className="grid-item-shadow"
+                  style={{
+                    width: `${nCol.widthFraction * 100}%`,
+                    height: '100%',
+                    borderRadius: `${nCol.borderRadius || 12}px`,
+                    opacity: nCol.opacity ?? 1,
+                    backgroundColor: nCol.backgroundColor || 'rgba(255,255,255,0.7)',
+                    border: canvasState.mainGrid.hasBorder ? `1px solid ${canvasState.mainGrid.borderColor || 'rgba(0,0,0,0.08)'}` : 'none',
+                    boxShadow: canvasState.mainGrid.hasShadow ? '0 4px 6px -1px rgb(0 0 0 / 0.1)' : 'none'
+                  }}
+                />
+              ))}
+            </div>
+          ))
+        ) : (
+          <div className="w-full h-full" />
+        )}
+      </div>
+    );
   };
 
   return (
@@ -261,9 +309,9 @@ export function CanvasArea() {
                   }}
                 >
                   {row.columns.map((col, cIdx) => (
-                    <div 
+                    <RenderColumn
                       key={col.id}
-                      onMouseDown={() => handleMouseDown(rIdx, cIdx)}
+                      col={col}
                       className={cn(
                         "grid-item-shadow flex items-center justify-center group",
                         canvasState.mainGrid.hasShadow && canvasState.mainGrid.colorMode === 'individual' && "shadow-md",
@@ -288,11 +336,7 @@ export function CanvasArea() {
                         borderColor: canvasState.mainGrid.borderColor || 'rgba(0,0,0,0.08)',
                         transition: draggingItem ? 'none' : 'all 0.3s ease'
                       }}
-                    >
-                      {canvasState.layoutType === 'freeform' && (
-                        <Move className="w-4 h-4 text-primary opacity-0 group-hover:opacity-40 transition-opacity" />
-                      )}
-                    </div>
+                    />
                   ))}
                 </div>
               ))}
