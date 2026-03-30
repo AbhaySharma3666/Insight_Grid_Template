@@ -1,16 +1,18 @@
 "use client";
 
-import React, { useRef, useEffect, useState } from 'react';
+import React, { useRef, useEffect, useState, useCallback } from 'react';
 import { useEditor } from '@/hooks/use-editor-state';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
-import { Plus, Minus, RotateCcw } from 'lucide-react';
+import { Plus, Minus, RotateCcw, Move } from 'lucide-react';
 
 export function CanvasArea() {
-  const { canvasState, setCanvasRef, zoom, setZoom } = useEditor();
+  const { canvasState, setCanvasState, setCanvasRef, zoom, setZoom } = useEditor();
   const containerRef = useRef<HTMLDivElement>(null);
   const canvasElementRef = useRef<HTMLDivElement>(null);
+  const mainContentRef = useRef<HTMLDivElement>(null);
   const [baseScale, setBaseScale] = useState(1);
+  const [draggingItem, setDraggingItem] = useState<{ rIdx: number, cIdx: number } | null>(null);
 
   useEffect(() => {
     const handleResize = () => {
@@ -43,6 +45,36 @@ export function CanvasArea() {
     }
   }, [setCanvasRef]);
 
+  const handleMouseDown = (rIdx: number, cIdx: number) => {
+    if (canvasState.layoutType !== 'freeform') return;
+    setDraggingItem({ rIdx, cIdx });
+  };
+
+  const handleMouseMove = useCallback((e: React.MouseEvent) => {
+    if (!draggingItem || !mainContentRef.current) return;
+
+    const rect = mainContentRef.current.getBoundingClientRect();
+    const x = ((e.clientX - rect.left) / rect.width) * 100;
+    const y = ((e.clientY - rect.top) / rect.height) * 100;
+
+    setCanvasState(prev => {
+      const newRows = [...prev.mainGrid.rows];
+      const row = newRows[draggingItem.rIdx];
+      const newCols = [...row.columns];
+      newCols[draggingItem.cIdx] = {
+        ...newCols[draggingItem.cIdx],
+        x: Math.max(0, Math.min(100 - (newCols[draggingItem.cIdx].w || 10), x)),
+        y: Math.max(0, Math.min(100 - (newCols[draggingItem.cIdx].h || 10), y))
+      };
+      newRows[draggingItem.rIdx] = { ...row, columns: newCols };
+      return { ...prev, mainGrid: { ...prev.mainGrid, rows: newRows } };
+    });
+  }, [draggingItem, setCanvasState]);
+
+  const handleMouseUp = () => {
+    setDraggingItem(null);
+  };
+
   const finalScale = baseScale * zoom;
 
   const aspectRatioParts = canvasState.aspectRatio.split(':').map(Number);
@@ -63,7 +95,6 @@ export function CanvasArea() {
     height: '100%',
   } : {};
 
-  // Construct background style
   const getBackgroundStyle = () => {
     if (canvasState.backgroundImage) {
       return {
@@ -86,7 +117,13 @@ export function CanvasArea() {
   };
 
   return (
-    <div ref={containerRef} className="flex-1 bg-background overflow-hidden flex items-center justify-center p-10 select-none relative">
+    <div 
+      ref={containerRef} 
+      className="flex-1 bg-background overflow-hidden flex items-center justify-center p-10 select-none relative"
+      onMouseMove={handleMouseMove}
+      onMouseUp={handleMouseUp}
+      onMouseLeave={handleMouseUp}
+    >
       <div 
         ref={canvasElementRef}
         className="canvas-shadow relative overflow-hidden bg-white"
@@ -95,14 +132,14 @@ export function CanvasArea() {
           height: `${canvasHeight}px`,
           ...getBackgroundStyle(),
           transform: `scale(${finalScale})`,
-          transition: 'transform 0.2s ease-out',
+          transition: draggingItem ? 'none' : 'transform 0.2s ease-out',
         }}
       >
         <div 
           className="flex flex-col w-full h-full p-6"
           style={{ gap: `${canvasState.mainGrid.rowGap}px` }}
         >
-          {/* Top Header Row (Full Width) */}
+          {/* Top Header Row */}
           {canvasState.header.enabled && (
             <div 
               className="flex flex-row shrink-0"
@@ -130,7 +167,7 @@ export function CanvasArea() {
             </div>
           )}
 
-          {/* Bottom Content Area: Side Panel + Main Grid side-by-side */}
+          {/* Bottom Area: Side Panel + Main Content */}
           <div 
             className={cn(
               "flex flex-1 min-h-0",
@@ -138,7 +175,6 @@ export function CanvasArea() {
             )}
             style={{ gap: `${canvasState.sidePanel.panelGap}px` }}
           >
-            {/* Side Panel */}
             {canvasState.sidePanel.position !== 'none' && (
               <div 
                 className="h-full shrink-0 relative overflow-hidden"
@@ -173,40 +209,56 @@ export function CanvasArea() {
               </div>
             )}
 
-            {/* Main Content Area (Rows) */}
             <div 
-              className="flex-1 h-full flex flex-col"
-              style={{ gap: `${canvasState.mainGrid.rowGap}px` }}
+              ref={mainContentRef}
+              className={cn(
+                "flex-1 h-full flex flex-col relative",
+                canvasState.layoutType === 'freeform' ? "block" : "flex"
+              )}
+              style={{ gap: canvasState.layoutType === 'freeform' ? '0' : `${canvasState.mainGrid.rowGap}px` }}
             >
-              {canvasState.mainGrid.rows.map((row) => (
+              {canvasState.mainGrid.rows.map((row, rIdx) => (
                 <div 
                   key={row.id} 
                   className={cn(
                     "flex flex-row",
-                    canvasState.layoutType === 'freeform' && "relative"
+                    canvasState.layoutType === 'freeform' ? "static" : "relative"
                   )}
                   style={{ 
-                    height: `${row.heightFraction * 100}%`,
+                    height: canvasState.layoutType === 'freeform' ? '100%' : `${row.heightFraction * 100}%`,
                     gap: `${canvasState.mainGrid.columnGap}px` 
                   }}
                 >
-                  {row.columns.map((col) => (
+                  {row.columns.map((col, cIdx) => (
                     <div 
                       key={col.id}
+                      onMouseDown={() => handleMouseDown(rIdx, cIdx)}
                       className={cn(
-                        "grid-item-shadow",
+                        "grid-item-shadow flex items-center justify-center group",
                         canvasState.mainGrid.hasShadow && "shadow-md",
                         canvasState.mainGrid.hasBorder && "border",
-                        canvasState.layoutType === 'freeform' && "transform scale-[0.98] opacity-90"
+                        canvasState.layoutType === 'freeform' && "absolute cursor-grab active:cursor-grabbing hover:ring-2 hover:ring-primary/20",
+                        draggingItem?.rIdx === rIdx && draggingItem?.cIdx === cIdx && "z-50 ring-2 ring-primary scale-[1.02]"
                       )}
                       style={{
-                        width: `${col.widthFraction * 100}%`,
+                        ...(canvasState.layoutType === 'freeform' ? {
+                          left: `${col.x || 0}%`,
+                          top: `${col.y || 0}%`,
+                          width: `${col.w || (col.widthFraction * 100)}%`,
+                          height: `${col.h || (row.heightFraction * 100)}%`,
+                        } : {
+                          width: `${col.widthFraction * 100}%`,
+                        }),
                         borderRadius: `${col.borderRadius || 12}px`,
                         backgroundColor: 'rgba(255,255,255,0.7)',
                         borderColor: canvasState.mainGrid.borderColor || 'rgba(0,0,0,0.08)',
-                        transition: 'all 0.3s ease'
+                        transition: draggingItem ? 'none' : 'all 0.3s ease'
                       }}
-                    />
+                    >
+                      {canvasState.layoutType === 'freeform' && (
+                        <Move className="w-4 h-4 text-primary opacity-0 group-hover:opacity-40 transition-opacity" />
+                      )}
+                    </div>
                   ))}
                 </div>
               ))}
@@ -215,14 +267,12 @@ export function CanvasArea() {
         </div>
       </div>
       
-      {/* Zoom Controls */}
       <div className="absolute bottom-6 right-6 flex items-center gap-2 bg-white/80 backdrop-blur-sm border p-1 rounded-full shadow-sm z-30">
         <Button 
           variant="ghost" 
           size="icon" 
           className="h-8 w-8 rounded-full"
           onClick={() => setZoom(prev => Math.max(0.1, prev - 0.1))}
-          title="Zoom Out"
         >
           <Minus className="w-4 h-4" />
         </Button>
@@ -234,7 +284,6 @@ export function CanvasArea() {
           size="icon" 
           className="h-8 w-8 rounded-full"
           onClick={() => setZoom(prev => Math.min(3, prev + 0.1))}
-          title="Zoom In"
         >
           <Plus className="w-4 h-4" />
         </Button>
@@ -243,7 +292,6 @@ export function CanvasArea() {
           size="icon" 
           className="h-8 w-8 rounded-full ml-1"
           onClick={() => setZoom(1)}
-          title="Reset Zoom"
         >
           <RotateCcw className="w-3.5 h-3.5 text-accent" />
         </Button>

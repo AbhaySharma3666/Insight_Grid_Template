@@ -4,10 +4,15 @@ import React, { createContext, useContext, useState, useCallback, useRef } from 
 import { AiLayoutSuggestionOutput } from '@/ai/flows/ai-layout-suggestion-flow';
 import { useToast } from '@/hooks/use-toast';
 
-interface ColumnDefinition {
+export interface ColumnDefinition {
   id: string;
   widthFraction: number;
   borderRadius?: number;
+  // Freeform properties (percentages 0-100)
+  x?: number;
+  y?: number;
+  w?: number;
+  h?: number;
 }
 
 interface RowDefinition {
@@ -83,18 +88,18 @@ const DEFAULT_STATE: CanvasState = {
         id: 'r1',
         heightFraction: 0.25,
         columns: [
-          { id: 'r1c1', widthFraction: 0.25, borderRadius: 12 },
-          { id: 'r1c2', widthFraction: 0.25, borderRadius: 12 },
-          { id: 'r1c3', widthFraction: 0.25, borderRadius: 12 },
-          { id: 'r1c4', widthFraction: 0.25, borderRadius: 12 },
+          { id: 'r1c1', widthFraction: 0.25, borderRadius: 12, x: 0, y: 0, w: 23, h: 25 },
+          { id: 'r1c2', widthFraction: 0.25, borderRadius: 12, x: 25, y: 0, w: 23, h: 25 },
+          { id: 'r1c3', widthFraction: 0.25, borderRadius: 12, x: 50, y: 0, w: 23, h: 25 },
+          { id: 'r1c4', widthFraction: 0.25, borderRadius: 12, x: 75, y: 0, w: 25, h: 25 },
         ]
       },
       {
         id: 'r2',
         heightFraction: 0.75,
         columns: [
-          { id: 'r2c1', widthFraction: 0.65, borderRadius: 12 },
-          { id: 'r2c2', widthFraction: 0.35, borderRadius: 12 },
+          { id: 'r2c1', widthFraction: 0.65, borderRadius: 12, x: 0, y: 30, w: 63, h: 70 },
+          { id: 'r2c2', widthFraction: 0.35, borderRadius: 12, x: 65, y: 30, w: 35, h: 70 },
         ]
       }
     ],
@@ -166,6 +171,11 @@ export function EditorProvider({ children }: { children: React.ReactNode }) {
             id: `col-${rIdx}-${cIdx}-${Date.now()}`,
             widthFraction: col.widthFraction,
             borderRadius: (col as any).borderRadius || 12,
+            // Basic mapping for freeform if needed
+            x: cIdx * (100 / row.columns.length),
+            y: rIdx * (100 / suggestion.mainGrid.rows.length),
+            w: 100 / row.columns.length - 2,
+            h: 100 / suggestion.mainGrid.rows.length - 2,
           }))
         })),
         columnGap: suggestion.mainGrid.columnGap,
