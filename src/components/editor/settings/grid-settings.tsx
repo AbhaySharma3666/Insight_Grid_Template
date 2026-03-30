@@ -18,7 +18,7 @@ export function GridSettings() {
       const newRows = [...prev.mainGrid.rows, {
         id: `row-${Date.now()}`,
         heightFraction: 1,
-        columns: [{ id: `col-${Date.now()}`, widthFraction: 1, borderRadius: 12, x: 10, y: 10, w: 20, h: 20 }]
+        columns: [{ id: `col-${Date.now()}`, widthFraction: 1, borderRadius: 12, opacity: 1, x: 10, y: 10, w: 20, h: 20 }]
       }];
       const total = newRows.length;
       return {
@@ -55,6 +55,7 @@ export function GridSettings() {
         id: `col-${Date.now()}`, 
         widthFraction: 1, 
         borderRadius: 12,
+        opacity: 1,
         x: 50, y: 50, w: 20, h: 20
       }];
       const total = newCols.length;
@@ -243,6 +244,18 @@ export function GridSettings() {
                                 value={[col.borderRadius || 0]} 
                                 min={0} max={60} step={1}
                                 onValueChange={(val) => updateColumnProperty(rIdx, cIdx, 'borderRadius', val[0])}
+                              />
+                            </div>
+
+                            <div className="space-y-2">
+                              <div className="flex justify-between">
+                                <Label className="text-[9px] uppercase text-primary font-bold">Opacity</Label>
+                                <span className="text-[9px] font-mono">{Math.round((col.opacity ?? 1) * 100)}%</span>
+                              </div>
+                              <Slider 
+                                value={[(col.opacity ?? 1) * 100]} 
+                                min={0} max={100} step={5}
+                                onValueChange={(val) => updateColumnProperty(rIdx, cIdx, 'opacity', val[0] / 100)}
                               />
                             </div>
                           </div>

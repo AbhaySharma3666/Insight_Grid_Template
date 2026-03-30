@@ -8,6 +8,7 @@ export interface ColumnDefinition {
   id: string;
   widthFraction: number;
   borderRadius?: number;
+  opacity?: number;
   // Freeform properties (percentages 0-100)
   x?: number;
   y?: number;
@@ -34,6 +35,7 @@ interface CanvasState {
   header: {
     enabled: boolean;
     heightFraction: number;
+    columnGap: number;
     columns: ColumnDefinition[];
     hasShadow: boolean;
     hasBorder: boolean;
@@ -75,11 +77,12 @@ const DEFAULT_STATE: CanvasState = {
   header: {
     enabled: true,
     heightFraction: 0.12,
+    columnGap: 20,
     hasShadow: true,
     hasBorder: false,
     columns: [
-      { id: 'h-col-1', widthFraction: 0.3, borderRadius: 12 },
-      { id: 'h-col-2', widthFraction: 0.7, borderRadius: 12 },
+      { id: 'h-col-1', widthFraction: 0.3, borderRadius: 12, opacity: 1 },
+      { id: 'h-col-2', widthFraction: 0.7, borderRadius: 12, opacity: 1 },
     ]
   },
   mainGrid: {
@@ -88,18 +91,18 @@ const DEFAULT_STATE: CanvasState = {
         id: 'r1',
         heightFraction: 0.25,
         columns: [
-          { id: 'r1c1', widthFraction: 0.25, borderRadius: 12, x: 0, y: 0, w: 23, h: 25 },
-          { id: 'r1c2', widthFraction: 0.25, borderRadius: 12, x: 25, y: 0, w: 23, h: 25 },
-          { id: 'r1c3', widthFraction: 0.25, borderRadius: 12, x: 50, y: 0, w: 23, h: 25 },
-          { id: 'r1c4', widthFraction: 0.25, borderRadius: 12, x: 75, y: 0, w: 25, h: 25 },
+          { id: 'r1c1', widthFraction: 0.25, borderRadius: 12, opacity: 1, x: 0, y: 0, w: 23, h: 25 },
+          { id: 'r1c2', widthFraction: 0.25, borderRadius: 12, opacity: 1, x: 25, y: 0, w: 23, h: 25 },
+          { id: 'r1c3', widthFraction: 0.25, borderRadius: 12, opacity: 1, x: 50, y: 0, w: 23, h: 25 },
+          { id: 'r1c4', widthFraction: 0.25, borderRadius: 12, opacity: 1, x: 75, y: 0, w: 25, h: 25 },
         ]
       },
       {
         id: 'r2',
         heightFraction: 0.75,
         columns: [
-          { id: 'r2c1', widthFraction: 0.65, borderRadius: 12, x: 0, y: 30, w: 63, h: 70 },
-          { id: 'r2c2', widthFraction: 0.35, borderRadius: 12, x: 65, y: 30, w: 35, h: 70 },
+          { id: 'r2c1', widthFraction: 0.65, borderRadius: 12, opacity: 1, x: 0, y: 30, w: 63, h: 70 },
+          { id: 'r2c2', widthFraction: 0.35, borderRadius: 12, opacity: 1, x: 65, y: 30, w: 35, h: 70 },
         ]
       }
     ],
@@ -114,7 +117,7 @@ const DEFAULT_STATE: CanvasState = {
     widthPercentage: 20,
     panelGap: 20,
     internalGrid: {
-      columns: [{ id: 's-col-1', widthFraction: 1, borderRadius: 8 }],
+      columns: [{ id: 's-col-1', widthFraction: 1, borderRadius: 8, opacity: 1 }],
       rows: Array(5).fill(null).map(() => ({ heightFraction: 0.2 })),
       columnGap: 10,
       rowGap: 10,
@@ -156,10 +159,12 @@ export function EditorProvider({ children }: { children: React.ReactNode }) {
         ...prev.header,
         enabled: !!suggestion.header,
         heightFraction: suggestion.header?.heightFraction || 0.12,
+        columnGap: prev.header.columnGap, // AI doesn't currently suggest this, keep existing
         columns: suggestion.header?.columns.map((col, idx) => ({
           id: `h-col-${idx}-${Date.now()}`,
           widthFraction: col.widthFraction,
-          borderRadius: (col as any).borderRadius || 12
+          borderRadius: (col as any).borderRadius || 12,
+          opacity: 1
         })) || prev.header.columns
       },
       mainGrid: {
@@ -171,6 +176,7 @@ export function EditorProvider({ children }: { children: React.ReactNode }) {
             id: `col-${rIdx}-${cIdx}-${Date.now()}`,
             widthFraction: col.widthFraction,
             borderRadius: (col as any).borderRadius || 12,
+            opacity: 1,
             // Basic mapping for freeform if needed
             x: cIdx * (100 / row.columns.length),
             y: rIdx * (100 / suggestion.mainGrid.rows.length),
@@ -194,7 +200,8 @@ export function EditorProvider({ children }: { children: React.ReactNode }) {
           columns: suggestion.sidePanel.internalGrid.columns.map((c, idx) => ({
             id: `s-col-${idx}-${Date.now()}`,
             widthFraction: c.widthFraction,
-            borderRadius: (c as any).borderRadius || 8
+            borderRadius: (c as any).borderRadius || 8,
+            opacity: 1
           }))
         } : undefined,
       },

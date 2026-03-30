@@ -15,14 +15,14 @@ export function SidePanelSettings() {
   const addSideColumn = () => {
     setCanvasState(prev => {
       const currentGrid = prev.sidePanel.internalGrid || {
-        columns: [{ widthFraction: 1 }],
+        columns: [{ id: `s-col-${Date.now()}`, widthFraction: 1, borderRadius: 8, opacity: 1 }],
         rows: Array(3).fill(null).map(() => ({ heightFraction: 1/3 })),
         columnGap: 10,
         rowGap: 10,
         hasShadow: false,
         hasBorder: true,
       };
-      const newCols = [...currentGrid.columns, { widthFraction: 1 }];
+      const newCols = [...currentGrid.columns, { id: `s-col-${Date.now()}`, widthFraction: 1, borderRadius: 8, opacity: 1 }];
       const total = newCols.length;
       return {
         ...prev,
@@ -30,18 +30,18 @@ export function SidePanelSettings() {
           ...prev.sidePanel,
           internalGrid: {
             ...currentGrid,
-            columns: newCols.map(() => ({ widthFraction: 1 / total }))
+            columns: newCols.map(c => ({ ...c, widthFraction: 1 / total }))
           }
         }
       };
     });
   };
 
-  const updateSideColumnWidth = (index: number, val: number) => {
+  const updateSideColumnProperty = (index: number, key: string, val: any) => {
     setCanvasState(prev => {
       if (!prev.sidePanel.internalGrid) return prev;
       const newCols = [...prev.sidePanel.internalGrid.columns];
-      newCols[index] = { widthFraction: val };
+      newCols[index] = { ...newCols[index], [key]: val };
       return {
         ...prev,
         sidePanel: {
@@ -72,7 +72,7 @@ export function SidePanelSettings() {
   const addSideRow = () => {
     setCanvasState(prev => {
       const currentGrid = prev.sidePanel.internalGrid || {
-        columns: [{ widthFraction: 1 }],
+        columns: [{ id: `s-col-${Date.now()}`, widthFraction: 1, borderRadius: 8, opacity: 1 }],
         rows: Array(3).fill(null).map(() => ({ heightFraction: 1/3 })),
         columnGap: 10,
         rowGap: 10,
@@ -87,7 +87,7 @@ export function SidePanelSettings() {
           ...prev.sidePanel,
           internalGrid: {
             ...currentGrid,
-            rows: newRows.map(() => ({ heightFraction: 1 / total }))
+            rows: newRows.map(r => ({ ...r, heightFraction: 1 / total }))
           }
         }
       };
@@ -210,7 +210,7 @@ export function SidePanelSettings() {
                   sidePanel: { 
                     ...prev.sidePanel, 
                     internalGrid: val ? {
-                      columns: [{ widthFraction: 1 }],
+                      columns: [{ id: `s-col-${Date.now()}`, widthFraction: 1, borderRadius: 8, opacity: 1 }],
                       rows: Array(5).fill(null).map(() => ({ heightFraction: 0.2 })),
                       columnGap: 10,
                       rowGap: 10,
@@ -240,11 +240,25 @@ export function SidePanelSettings() {
                             <Trash2 className="w-3 h-3" />
                           </Button>
                         </div>
-                        <Slider 
-                          value={[col.widthFraction * 100]} 
-                          min={1} max={100} step={1}
-                          onValueChange={(val) => updateSideColumnWidth(idx, val[0] / 100)}
-                        />
+                        <div className="space-y-1">
+                          <Label className="text-[8px] uppercase">Width Weight</Label>
+                          <Slider 
+                            value={[col.widthFraction * 100]} 
+                            min={1} max={100} step={1}
+                            onValueChange={(val) => updateSideColumnProperty(idx, 'widthFraction', val[0] / 100)}
+                          />
+                        </div>
+                        <div className="space-y-1">
+                          <div className="flex justify-between">
+                            <Label className="text-[8px] uppercase text-primary">Opacity</Label>
+                            <span className="text-[8px] font-mono">{Math.round((col.opacity ?? 1) * 100)}%</span>
+                          </div>
+                          <Slider 
+                            value={[(col.opacity ?? 1) * 100]} 
+                            min={0} max={100} step={5}
+                            onValueChange={(val) => updateSideColumnProperty(idx, 'opacity', val[0] / 100)}
+                          />
+                        </div>
                       </div>
                     ))}
                   </div>

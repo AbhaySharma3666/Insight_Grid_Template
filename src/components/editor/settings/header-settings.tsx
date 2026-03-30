@@ -13,7 +13,7 @@ export function HeaderSettings() {
 
   const addColumn = () => {
     setCanvasState(prev => {
-      const newCols = [...prev.header.columns, { id: `h-col-${Date.now()}`, widthFraction: 1, borderRadius: 12 }];
+      const newCols = [...prev.header.columns, { id: `h-col-${Date.now()}`, widthFraction: 1, borderRadius: 12, opacity: 1 }];
       const total = newCols.length;
       return {
         ...prev,
@@ -84,6 +84,21 @@ export function HeaderSettings() {
             />
           </div>
 
+          <div className="space-y-4 pt-2">
+            <div className="flex justify-between">
+              <Label>Header Column Gap</Label>
+              <span className="text-xs font-mono">{canvasState.header.columnGap}px</span>
+            </div>
+            <Slider 
+              value={[canvasState.header.columnGap]} 
+              min={0} max={60} step={2}
+              onValueChange={(val) => setCanvasState(prev => ({
+                ...prev,
+                header: { ...prev.header, columnGap: val[0] }
+              }))}
+            />
+          </div>
+
           <div className="pt-4 space-y-4">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
@@ -132,6 +147,18 @@ export function HeaderSettings() {
                       value={[col.borderRadius || 0]} 
                       min={0} max={60} step={1}
                       onValueChange={(val) => updateColumnProperty(idx, 'borderRadius', val[0])}
+                    />
+                  </div>
+
+                  <div className="space-y-2">
+                    <div className="flex justify-between">
+                      <Label className="text-[9px] uppercase text-primary font-bold">Opacity</Label>
+                      <span className="text-[9px] font-mono">{Math.round((col.opacity ?? 1) * 100)}%</span>
+                    </div>
+                    <Slider 
+                      value={[(col.opacity ?? 1) * 100]} 
+                      min={0} max={100} step={5}
+                      onValueChange={(val) => updateColumnProperty(idx, 'opacity', val[0] / 100)}
                     />
                   </div>
                 </div>

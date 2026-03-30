@@ -145,7 +145,7 @@ export function CanvasArea() {
               className="flex flex-row shrink-0"
               style={{ 
                 height: `${canvasState.header.heightFraction * 100}%`,
-                gap: `${canvasState.mainGrid.columnGap}px` 
+                gap: `${canvasState.header.columnGap}px` 
               }}
             >
               {canvasState.header.columns.map((col) => (
@@ -159,6 +159,7 @@ export function CanvasArea() {
                   style={{
                     width: `${col.widthFraction * 100}%`,
                     borderRadius: `${col.borderRadius || 12}px`,
+                    opacity: col.opacity ?? 1,
                     backgroundColor: 'rgba(255,255,255,0.9)',
                     borderColor: canvasState.mainGrid.borderColor || 'rgba(0,0,0,0.1)',
                   }}
@@ -198,6 +199,7 @@ export function CanvasArea() {
                           )}
                           style={{
                             borderRadius: `${col.borderRadius || 8}px`,
+                            opacity: col.opacity ?? 1,
                             backgroundColor: 'rgba(255,255,255,0.8)',
                             borderColor: canvasState.sidePanel.internalGrid!.borderColor || 'rgba(0,0,0,0.1)',
                           }}
@@ -250,6 +252,7 @@ export function CanvasArea() {
                           width: `${col.widthFraction * 100}%`,
                         }),
                         borderRadius: `${col.borderRadius || 12}px`,
+                        opacity: col.opacity ?? 1,
                         backgroundColor: 'rgba(255,255,255,0.7)',
                         borderColor: canvasState.mainGrid.borderColor || 'rgba(0,0,0,0.08)',
                         transition: draggingItem ? 'none' : 'all 0.3s ease'
