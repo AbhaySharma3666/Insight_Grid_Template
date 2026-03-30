@@ -1,3 +1,4 @@
+
 "use client";
 
 import React from 'react';
@@ -10,6 +11,7 @@ import { Input } from '@/components/ui/input';
 import { Trash2, Plus, GripVertical, Columns, PanelTop, LayoutGrid, Palette, MoveVertical } from 'lucide-react';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { HeaderSettings } from './header-settings';
+import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
 export function GridSettings() {
   const { canvasState, setCanvasState } = useEditor();
@@ -137,6 +139,49 @@ export function GridSettings() {
             </div>
           </AccordionTrigger>
           <AccordionContent className="pt-2 pb-6 space-y-6">
+            
+            <div className="space-y-4 bg-muted/20 p-3 rounded-lg border">
+              <Label className="text-[10px] font-bold uppercase text-muted-foreground tracking-widest">Color Strategy</Label>
+              <Tabs 
+                value={canvasState.mainGrid.colorMode} 
+                onValueChange={(val: any) => setCanvasState(prev => ({
+                  ...prev,
+                  mainGrid: { ...prev.mainGrid, colorMode: val }
+                }))}
+              >
+                <TabsList className="grid grid-cols-2 h-8">
+                  <TabsTrigger value="section" className="text-[10px]">Whole Section</TabsTrigger>
+                  <TabsTrigger value="individual" className="text-[10px]">Individual Cell</TabsTrigger>
+                </TabsList>
+              </Tabs>
+
+              {canvasState.mainGrid.colorMode === 'section' && (
+                <div className="space-y-2 pt-2 animate-fade-in">
+                  <Label className="text-[9px] uppercase font-bold text-primary">Override Grid Color</Label>
+                  <div className="flex gap-2">
+                    <Input 
+                      type="color" 
+                      value={canvasState.mainGrid.sectionColor} 
+                      onChange={(e) => setCanvasState(prev => ({
+                        ...prev,
+                        mainGrid: { ...prev.mainGrid, sectionColor: e.target.value }
+                      }))}
+                      className="w-8 h-8 p-1 cursor-pointer"
+                    />
+                    <Input 
+                      type="text" 
+                      value={canvasState.mainGrid.sectionColor} 
+                      onChange={(e) => setCanvasState(prev => ({
+                        ...prev,
+                        mainGrid: { ...prev.mainGrid, sectionColor: e.target.value }
+                      }))}
+                      className="flex-1 h-8 font-mono text-[10px] uppercase"
+                    />
+                  </div>
+                </div>
+              )}
+            </div>
+
             <div className="flex items-center justify-between mb-2">
               <Label className="text-[10px] font-bold uppercase text-muted-foreground tracking-widest">Layout Structure</Label>
               <Button variant="outline" size="sm" className="h-7 gap-1" onClick={addRow}>
@@ -195,25 +240,27 @@ export function GridSettings() {
                               </Button>
                             </div>
 
-                            <div className="space-y-2">
-                              <Label className="text-[9px] uppercase flex items-center gap-2">
-                                <Palette className="w-2 h-2" /> Cell Color
-                              </Label>
-                              <div className="flex gap-2 items-center">
-                                <Input 
-                                  type="color" 
-                                  value={col.backgroundColor || '#ffffff'} 
-                                  onChange={(e) => updateColumnProperty(rIdx, cIdx, 'backgroundColor', e.target.value)}
-                                  className="w-8 h-8 p-0 border-none cursor-pointer"
-                                />
-                                <Input 
-                                  type="text" 
-                                  value={col.backgroundColor || '#ffffff'} 
-                                  onChange={(e) => updateColumnProperty(rIdx, cIdx, 'backgroundColor', e.target.value)}
-                                  className="h-7 text-[10px] font-mono flex-1 uppercase"
-                                />
+                            {canvasState.mainGrid.colorMode === 'individual' && (
+                              <div className="space-y-2 animate-fade-in">
+                                <Label className="text-[9px] uppercase flex items-center gap-2">
+                                  <Palette className="w-2 h-2" /> Cell Color
+                                </Label>
+                                <div className="flex gap-2 items-center">
+                                  <Input 
+                                    type="color" 
+                                    value={col.backgroundColor || '#ffffff'} 
+                                    onChange={(e) => updateColumnProperty(rIdx, cIdx, 'backgroundColor', e.target.value)}
+                                    className="w-8 h-8 p-0 border-none cursor-pointer"
+                                  />
+                                  <Input 
+                                    type="text" 
+                                    value={col.backgroundColor || '#ffffff'} 
+                                    onChange={(e) => updateColumnProperty(rIdx, cIdx, 'backgroundColor', e.target.value)}
+                                    className="h-7 text-[10px] font-mono flex-1 uppercase"
+                                  />
+                                </div>
                               </div>
-                            </div>
+                            )}
                             
                             {isFreeform ? (
                               <div className="grid grid-cols-2 gap-4">

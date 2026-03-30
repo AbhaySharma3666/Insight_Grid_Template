@@ -1,3 +1,4 @@
+
 "use client";
 
 import React from 'react';
@@ -9,6 +10,7 @@ import { Switch } from '@/components/ui/switch';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Plus, Trash2, Palette } from 'lucide-react';
+import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
 export function SidePanelSettings() {
   const { canvasState, setCanvasState } = useEditor();
@@ -171,6 +173,48 @@ export function SidePanelSettings() {
 
       {canvasState.sidePanel.position !== 'none' && (
         <>
+          <div className="space-y-4 bg-muted/20 p-3 rounded-lg border">
+            <Label className="text-[10px] font-bold uppercase text-muted-foreground tracking-widest">Color Strategy</Label>
+            <Tabs 
+              value={canvasState.sidePanel.colorMode} 
+              onValueChange={(val: any) => setCanvasState(prev => ({
+                ...prev,
+                sidePanel: { ...prev.sidePanel, colorMode: val }
+              }))}
+            >
+              <TabsList className="grid grid-cols-2 h-8">
+                <TabsTrigger value="section" className="text-[10px]">Whole Section</TabsTrigger>
+                <TabsTrigger value="individual" className="text-[10px]">Individual Cell</TabsTrigger>
+              </TabsList>
+            </Tabs>
+
+            {canvasState.sidePanel.colorMode === 'section' && (
+              <div className="space-y-2 pt-2 animate-fade-in">
+                <Label className="text-[9px] uppercase font-bold text-primary">Side Panel Color</Label>
+                <div className="flex gap-2">
+                  <Input 
+                    type="color" 
+                    value={canvasState.sidePanel.sectionColor} 
+                    onChange={(e) => setCanvasState(prev => ({
+                      ...prev,
+                      sidePanel: { ...prev.sidePanel, sectionColor: e.target.value }
+                    }))}
+                    className="w-8 h-8 p-1 cursor-pointer"
+                  />
+                  <Input 
+                    type="text" 
+                    value={canvasState.sidePanel.sectionColor} 
+                    onChange={(e) => setCanvasState(prev => ({
+                      ...prev,
+                      sidePanel: { ...prev.sidePanel, sectionColor: e.target.value }
+                    }))}
+                    className="flex-1 h-8 font-mono text-[10px] uppercase"
+                  />
+                </div>
+              </div>
+            )}
+          </div>
+
           <div className="space-y-3">
             <div className="flex justify-between">
               <Label>Panel Width</Label>
@@ -201,7 +245,7 @@ export function SidePanelSettings() {
             />
           </div>
 
-          {!canvasState.sidePanel.internalGrid && (
+          {canvasState.sidePanel.colorMode === 'individual' && !canvasState.sidePanel.internalGrid && (
             <div className="space-y-3 animate-fade-in pt-4 border-t">
               <div className="flex justify-between">
                 <Label className="text-primary font-bold">Panel Opacity</Label>
@@ -259,25 +303,27 @@ export function SidePanelSettings() {
                           </Button>
                         </div>
 
-                        <div className="space-y-1">
-                          <Label className="text-[8px] uppercase flex items-center gap-2">
-                            <Palette className="w-2 h-2" /> Cell Color
-                          </Label>
-                          <div className="flex gap-2 items-center">
-                            <Input 
-                              type="color" 
-                              value={col.backgroundColor || '#ffffff'} 
-                              onChange={(e) => updateSideColumnProperty(idx, 'backgroundColor', e.target.value)}
-                              className="w-6 h-6 p-0 border-none cursor-pointer"
-                            />
-                            <Input 
-                              type="text" 
-                              value={col.backgroundColor || '#ffffff'} 
-                              onChange={(e) => updateSideColumnProperty(idx, 'backgroundColor', e.target.value)}
-                              className="h-6 text-[8px] font-mono flex-1 uppercase"
-                            />
+                        {canvasState.sidePanel.colorMode === 'individual' && (
+                          <div className="space-y-1 animate-fade-in">
+                            <Label className="text-[8px] uppercase flex items-center gap-2">
+                              <Palette className="w-2 h-2" /> Cell Color
+                            </Label>
+                            <div className="flex gap-2 items-center">
+                              <Input 
+                                type="color" 
+                                value={col.backgroundColor || '#ffffff'} 
+                                onChange={(e) => updateSideColumnProperty(idx, 'backgroundColor', e.target.value)}
+                                className="w-6 h-6 p-0 border-none cursor-pointer"
+                              />
+                              <Input 
+                                type="text" 
+                                value={col.backgroundColor || '#ffffff'} 
+                                onChange={(e) => updateSideColumnProperty(idx, 'backgroundColor', e.target.value)}
+                                className="h-6 text-[8px] font-mono flex-1 uppercase"
+                              />
+                            </div>
                           </div>
-                        </div>
+                        )}
 
                         <div className="space-y-1">
                           <Label className="text-[8px] uppercase">Width Weight</Label>

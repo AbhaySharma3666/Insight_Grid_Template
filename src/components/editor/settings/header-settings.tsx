@@ -1,3 +1,4 @@
+
 "use client";
 
 import React from 'react';
@@ -8,6 +9,7 @@ import { Slider } from '@/components/ui/slider';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Plus, Trash2, Columns, Palette } from 'lucide-react';
+import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
 export function HeaderSettings() {
   const { canvasState, setCanvasState } = useEditor();
@@ -70,6 +72,48 @@ export function HeaderSettings() {
 
       {canvasState.header.enabled && (
         <>
+          <div className="space-y-4 bg-muted/20 p-3 rounded-lg border">
+            <Label className="text-[10px] font-bold uppercase text-muted-foreground tracking-widest">Color Strategy</Label>
+            <Tabs 
+              value={canvasState.header.colorMode} 
+              onValueChange={(val: any) => setCanvasState(prev => ({
+                ...prev,
+                header: { ...prev.header, colorMode: val }
+              }))}
+            >
+              <TabsList className="grid grid-cols-2 h-8">
+                <TabsTrigger value="section" className="text-[10px]">Whole Section</TabsTrigger>
+                <TabsTrigger value="individual" className="text-[10px]">Individual Cell</TabsTrigger>
+              </TabsList>
+            </Tabs>
+
+            {canvasState.header.colorMode === 'section' && (
+              <div className="space-y-2 pt-2 animate-fade-in">
+                <Label className="text-[9px] uppercase font-bold text-primary">Header Section Color</Label>
+                <div className="flex gap-2">
+                  <Input 
+                    type="color" 
+                    value={canvasState.header.sectionColor} 
+                    onChange={(e) => setCanvasState(prev => ({
+                      ...prev,
+                      header: { ...prev.header, sectionColor: e.target.value }
+                    }))}
+                    className="w-8 h-8 p-1 cursor-pointer"
+                  />
+                  <Input 
+                    type="text" 
+                    value={canvasState.header.sectionColor} 
+                    onChange={(e) => setCanvasState(prev => ({
+                      ...prev,
+                      header: { ...prev.header, sectionColor: e.target.value }
+                    }))}
+                    className="flex-1 h-8 font-mono text-[10px] uppercase"
+                  />
+                </div>
+              </div>
+            )}
+          </div>
+
           <div className="space-y-4 pt-2">
             <div className="flex justify-between">
               <Label>Header Height Weight</Label>
@@ -127,25 +171,27 @@ export function HeaderSettings() {
                     </Button>
                   </div>
 
-                  <div className="space-y-2">
-                    <Label className="text-[9px] uppercase flex items-center gap-2">
-                      <Palette className="w-2 h-2" /> Column Color
-                    </Label>
-                    <div className="flex gap-2 items-center">
-                      <Input 
-                        type="color" 
-                        value={col.backgroundColor || '#ffffff'} 
-                        onChange={(e) => updateColumnProperty(idx, 'backgroundColor', e.target.value)}
-                        className="w-8 h-8 p-0 border-none cursor-pointer"
-                      />
-                      <Input 
-                        type="text" 
-                        value={col.backgroundColor || '#ffffff'} 
-                        onChange={(e) => updateColumnProperty(idx, 'backgroundColor', e.target.value)}
-                        className="h-7 text-[10px] font-mono flex-1 uppercase"
-                      />
+                  {canvasState.header.colorMode === 'individual' && (
+                    <div className="space-y-2 animate-fade-in">
+                      <Label className="text-[9px] uppercase flex items-center gap-2">
+                        <Palette className="w-2 h-2" /> Cell Color
+                      </Label>
+                      <div className="flex gap-2 items-center">
+                        <Input 
+                          type="color" 
+                          value={col.backgroundColor || '#ffffff'} 
+                          onChange={(e) => updateColumnProperty(idx, 'backgroundColor', e.target.value)}
+                          className="w-8 h-8 p-0 border-none cursor-pointer"
+                        />
+                        <Input 
+                          type="text" 
+                          value={col.backgroundColor || '#ffffff'} 
+                          onChange={(e) => updateColumnProperty(idx, 'backgroundColor', e.target.value)}
+                          className="h-7 text-[10px] font-mono flex-1 uppercase"
+                        />
+                      </div>
                     </div>
-                  </div>
+                  )}
 
                   <div className="space-y-2">
                     <div className="flex justify-between">

@@ -1,3 +1,4 @@
+
 "use client";
 
 import React, { useRef, useEffect, useState, useCallback } from 'react';
@@ -154,7 +155,9 @@ export function CanvasArea() {
                     width: `${col.widthFraction * 100}%`,
                     borderRadius: `${col.borderRadius || 12}px`,
                     opacity: col.opacity ?? 1,
-                    backgroundColor: col.backgroundColor || 'rgba(255,255,255,0.9)',
+                    backgroundColor: canvasState.header.colorMode === 'section' 
+                      ? canvasState.header.sectionColor 
+                      : (col.backgroundColor || 'rgba(255,255,255,0.9)'),
                     borderColor: canvasState.mainGrid.borderColor || 'rgba(0,0,0,0.1)',
                   }}
                 />
@@ -177,7 +180,9 @@ export function CanvasArea() {
                   width: `${sidePanelWidth}px`,
                   backgroundColor: canvasState.sidePanel.internalGrid 
                     ? 'transparent' 
-                    : `rgba(255,255,255,${canvasState.sidePanel.opacity})`,
+                    : (canvasState.sidePanel.colorMode === 'section' 
+                      ? canvasState.sidePanel.sectionColor 
+                      : `rgba(255,255,255,${canvasState.sidePanel.opacity})`),
                   borderRadius: '12px',
                   border: canvasState.sidePanel.internalGrid ? 'none' : '1px solid rgba(0,0,0,0.05)',
                   transition: 'background-color 0.3s ease'
@@ -206,7 +211,9 @@ export function CanvasArea() {
                           style={{
                             borderRadius: `${col.borderRadius || 8}px`,
                             opacity: col.opacity ?? 1,
-                            backgroundColor: col.backgroundColor || 'rgba(255,255,255,0.8)',
+                            backgroundColor: canvasState.sidePanel.colorMode === 'section'
+                              ? canvasState.sidePanel.sectionColor
+                              : (col.backgroundColor || 'rgba(255,255,255,0.8)'),
                             borderColor: canvasState.sidePanel.internalGrid!.borderColor || 'rgba(0,0,0,0.1)',
                           }}
                         />
@@ -259,7 +266,9 @@ export function CanvasArea() {
                         }),
                         borderRadius: `${col.borderRadius || 12}px`,
                         opacity: col.opacity ?? 1,
-                        backgroundColor: col.backgroundColor || 'rgba(255,255,255,0.7)',
+                        backgroundColor: canvasState.mainGrid.colorMode === 'section'
+                          ? canvasState.mainGrid.sectionColor
+                          : (col.backgroundColor || 'rgba(255,255,255,0.7)'),
                         borderColor: canvasState.mainGrid.borderColor || 'rgba(0,0,0,0.08)',
                         transition: draggingItem ? 'none' : 'all 0.3s ease'
                       }}
