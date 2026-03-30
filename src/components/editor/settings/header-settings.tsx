@@ -14,7 +14,7 @@ export function HeaderSettings() {
 
   const addColumn = () => {
     setCanvasState(prev => {
-      const newCols = [...prev.header.columns, { id: `h-col-${Date.now()}`, widthFraction: 1, borderRadius: 12, opacity: 1 }];
+      const newCols = [...prev.header.columns, { id: `h-col-${Date.now()}`, widthFraction: 1, borderRadius: 12, opacity: 1, backgroundColor: 'rgba(255,255,255,0.9)' }];
       const total = newCols.length;
       return {
         ...prev,
@@ -125,6 +125,26 @@ export function HeaderSettings() {
                     >
                       <Trash2 className="w-3.5 h-3.5" />
                     </Button>
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label className="text-[9px] uppercase flex items-center gap-2">
+                      <Palette className="w-2 h-2" /> Column Color
+                    </Label>
+                    <div className="flex gap-2 items-center">
+                      <Input 
+                        type="color" 
+                        value={col.backgroundColor || '#ffffff'} 
+                        onChange={(e) => updateColumnProperty(idx, 'backgroundColor', e.target.value)}
+                        className="w-8 h-8 p-0 border-none cursor-pointer"
+                      />
+                      <Input 
+                        type="text" 
+                        value={col.backgroundColor || '#ffffff'} 
+                        onChange={(e) => updateColumnProperty(idx, 'backgroundColor', e.target.value)}
+                        className="h-7 text-[10px] font-mono flex-1 uppercase"
+                      />
+                    </div>
                   </div>
 
                   <div className="space-y-2">

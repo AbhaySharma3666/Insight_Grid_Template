@@ -86,15 +86,6 @@ export function CanvasArea() {
     ? (canvasWidth * (canvasState.sidePanel.widthPercentage || 20)) / 100 
     : 0;
 
-  const internalGridStyle = canvasState.sidePanel.internalGrid ? {
-    display: 'grid',
-    gridTemplateColumns: canvasState.sidePanel.internalGrid.columns.map(c => `${c.widthFraction}fr`).join(' '),
-    gridTemplateRows: canvasState.sidePanel.internalGrid.rows.map(r => `${r.heightFraction}fr`).join(' '),
-    gap: `${canvasState.sidePanel.internalGrid.rowGap}px ${canvasState.sidePanel.internalGrid.columnGap}px`,
-    padding: '16px',
-    height: '100%',
-  } : {};
-
   const getBackgroundStyle = () => {
     if (canvasState.backgroundImage) {
       return {
@@ -163,7 +154,7 @@ export function CanvasArea() {
                     width: `${col.widthFraction * 100}%`,
                     borderRadius: `${col.borderRadius || 12}px`,
                     opacity: col.opacity ?? 1,
-                    backgroundColor: 'rgba(255,255,255,0.9)',
+                    backgroundColor: col.backgroundColor || 'rgba(255,255,255,0.9)',
                     borderColor: canvasState.mainGrid.borderColor || 'rgba(0,0,0,0.1)',
                   }}
                 />
@@ -184,14 +175,25 @@ export function CanvasArea() {
                 className="h-full shrink-0 relative overflow-hidden"
                 style={{ 
                   width: `${sidePanelWidth}px`,
-                  backgroundColor: `rgba(255,255,255,${canvasState.sidePanel.internalGrid ? '0.4' : canvasState.sidePanel.opacity})`,
+                  backgroundColor: canvasState.sidePanel.internalGrid 
+                    ? 'transparent' 
+                    : `rgba(255,255,255,${canvasState.sidePanel.opacity})`,
                   borderRadius: '12px',
-                  border: '1px solid rgba(0,0,0,0.05)',
+                  border: canvasState.sidePanel.internalGrid ? 'none' : '1px solid rgba(0,0,0,0.05)',
                   transition: 'background-color 0.3s ease'
                 }}
               >
                 {canvasState.sidePanel.internalGrid && (
-                  <div style={internalGridStyle}>
+                  <div 
+                    style={{
+                      display: 'grid',
+                      gridTemplateColumns: canvasState.sidePanel.internalGrid.columns.map(c => `${c.widthFraction}fr`).join(' '),
+                      gridTemplateRows: canvasState.sidePanel.internalGrid.rows.map(r => `${r.heightFraction}fr`).join(' '),
+                      gap: `${canvasState.sidePanel.internalGrid.rowGap}px ${canvasState.sidePanel.internalGrid.columnGap}px`,
+                      padding: '16px',
+                      height: '100%',
+                    }}
+                  >
                     {canvasState.sidePanel.internalGrid.rows.map((row, rIdx) => (
                       canvasState.sidePanel.internalGrid!.columns.map((col, cIdx) => (
                         <div 
@@ -204,7 +206,7 @@ export function CanvasArea() {
                           style={{
                             borderRadius: `${col.borderRadius || 8}px`,
                             opacity: col.opacity ?? 1,
-                            backgroundColor: 'rgba(255,255,255,0.8)',
+                            backgroundColor: col.backgroundColor || 'rgba(255,255,255,0.8)',
                             borderColor: canvasState.sidePanel.internalGrid!.borderColor || 'rgba(0,0,0,0.1)',
                           }}
                         />
@@ -257,7 +259,7 @@ export function CanvasArea() {
                         }),
                         borderRadius: `${col.borderRadius || 12}px`,
                         opacity: col.opacity ?? 1,
-                        backgroundColor: 'rgba(255,255,255,0.7)',
+                        backgroundColor: col.backgroundColor || 'rgba(255,255,255,0.7)',
                         borderColor: canvasState.mainGrid.borderColor || 'rgba(0,0,0,0.08)',
                         transition: draggingItem ? 'none' : 'all 0.3s ease'
                       }}

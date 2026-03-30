@@ -10,6 +10,7 @@ export interface ColumnDefinition {
   widthFraction: number;
   borderRadius?: number;
   opacity?: number;
+  backgroundColor?: string;
   // Freeform properties (percentages 0-100)
   x?: number;
   y?: number;
@@ -87,8 +88,8 @@ const DEFAULT_STATE: CanvasState = {
     hasShadow: true,
     hasBorder: false,
     columns: [
-      { id: 'h-col-1', widthFraction: 0.3, borderRadius: 12, opacity: 1 },
-      { id: 'h-col-2', widthFraction: 0.7, borderRadius: 12, opacity: 1 },
+      { id: 'h-col-1', widthFraction: 0.3, borderRadius: 12, opacity: 1, backgroundColor: 'rgba(255,255,255,0.9)' },
+      { id: 'h-col-2', widthFraction: 0.7, borderRadius: 12, opacity: 1, backgroundColor: 'rgba(255,255,255,0.9)' },
     ]
   },
   mainGrid: {
@@ -97,18 +98,18 @@ const DEFAULT_STATE: CanvasState = {
         id: 'r1',
         heightFraction: 0.25,
         columns: [
-          { id: 'r1c1', widthFraction: 0.25, borderRadius: 12, opacity: 1, x: 0, y: 0, w: 23, h: 25 },
-          { id: 'r1c2', widthFraction: 0.25, borderRadius: 12, opacity: 1, x: 25, y: 0, w: 23, h: 25 },
-          { id: 'r1c3', widthFraction: 0.25, borderRadius: 12, opacity: 1, x: 50, y: 0, w: 23, h: 25 },
-          { id: 'r1c4', widthFraction: 0.25, borderRadius: 12, opacity: 1, x: 75, y: 0, w: 25, h: 25 },
+          { id: 'r1c1', widthFraction: 0.25, borderRadius: 12, opacity: 1, backgroundColor: 'rgba(255,255,255,0.7)', x: 0, y: 0, w: 23, h: 25 },
+          { id: 'r1c2', widthFraction: 0.25, borderRadius: 12, opacity: 1, backgroundColor: 'rgba(255,255,255,0.7)', x: 25, y: 0, w: 23, h: 25 },
+          { id: 'r1c3', widthFraction: 0.25, borderRadius: 12, opacity: 1, backgroundColor: 'rgba(255,255,255,0.7)', x: 50, y: 0, w: 23, h: 25 },
+          { id: 'r1c4', widthFraction: 0.25, borderRadius: 12, opacity: 1, backgroundColor: 'rgba(255,255,255,0.7)', x: 75, y: 0, w: 25, h: 25 },
         ]
       },
       {
         id: 'r2',
         heightFraction: 0.75,
         columns: [
-          { id: 'r2c1', widthFraction: 0.65, borderRadius: 12, opacity: 1, x: 0, y: 30, w: 63, h: 70 },
-          { id: 'r2c2', widthFraction: 0.35, borderRadius: 12, opacity: 1, x: 65, y: 30, w: 35, h: 70 },
+          { id: 'r2c1', widthFraction: 0.65, borderRadius: 12, opacity: 1, backgroundColor: 'rgba(255,255,255,0.7)', x: 0, y: 30, w: 63, h: 70 },
+          { id: 'r2c2', widthFraction: 0.35, borderRadius: 12, opacity: 1, backgroundColor: 'rgba(255,255,255,0.7)', x: 65, y: 30, w: 35, h: 70 },
         ]
       }
     ],
@@ -124,7 +125,7 @@ const DEFAULT_STATE: CanvasState = {
     panelGap: 20,
     opacity: 0.4,
     internalGrid: {
-      columns: [{ id: 's-col-1', widthFraction: 1, borderRadius: 8, opacity: 1 }],
+      columns: [{ id: 's-col-1', widthFraction: 1, borderRadius: 8, opacity: 1, backgroundColor: 'rgba(255,255,255,0.8)' }],
       rows: Array(5).fill(null).map(() => ({ heightFraction: 0.2 })),
       columnGap: 10,
       rowGap: 10,
@@ -171,7 +172,8 @@ export function EditorProvider({ children }: { children: React.ReactNode }) {
           id: `h-col-${idx}-${Date.now()}`,
           widthFraction: col.widthFraction,
           borderRadius: (col as any).borderRadius || 12,
-          opacity: 1
+          opacity: 1,
+          backgroundColor: 'rgba(255,255,255,0.9)'
         })) || prev.header.columns
       },
       mainGrid: {
@@ -184,6 +186,7 @@ export function EditorProvider({ children }: { children: React.ReactNode }) {
             widthFraction: col.widthFraction,
             borderRadius: (col as any).borderRadius || 12,
             opacity: 1,
+            backgroundColor: 'rgba(255,255,255,0.7)',
             x: cIdx * (100 / row.columns.length),
             y: rIdx * (100 / suggestion.mainGrid.rows.length),
             w: 100 / row.columns.length - 2,
@@ -208,7 +211,8 @@ export function EditorProvider({ children }: { children: React.ReactNode }) {
             id: `s-col-${idx}-${Date.now()}`,
             widthFraction: c.widthFraction,
             borderRadius: (c as any).borderRadius || 8,
-            opacity: 1
+            opacity: 1,
+            backgroundColor: 'rgba(255,255,255,0.8)'
           }))
         } : undefined,
       },

@@ -19,7 +19,7 @@ export function GridSettings() {
       const newRows = [...prev.mainGrid.rows, {
         id: `row-${Date.now()}`,
         heightFraction: 1,
-        columns: [{ id: `col-${Date.now()}`, widthFraction: 1, borderRadius: 12, opacity: 1, x: 10, y: 10, w: 20, h: 20 }]
+        columns: [{ id: `col-${Date.now()}`, widthFraction: 1, borderRadius: 12, opacity: 1, backgroundColor: 'rgba(255,255,255,0.7)', x: 10, y: 10, w: 20, h: 20 }]
       }];
       const total = newRows.length;
       return {
@@ -57,6 +57,7 @@ export function GridSettings() {
         widthFraction: 1, 
         borderRadius: 12,
         opacity: 1,
+        backgroundColor: 'rgba(255,255,255,0.7)',
         x: 50, y: 50, w: 20, h: 20
       }];
       const total = newCols.length;
@@ -192,6 +193,26 @@ export function GridSettings() {
                               >
                                 <Trash2 className="w-3.5 h-3.5" />
                               </Button>
+                            </div>
+
+                            <div className="space-y-2">
+                              <Label className="text-[9px] uppercase flex items-center gap-2">
+                                <Palette className="w-2 h-2" /> Cell Color
+                              </Label>
+                              <div className="flex gap-2 items-center">
+                                <Input 
+                                  type="color" 
+                                  value={col.backgroundColor || '#ffffff'} 
+                                  onChange={(e) => updateColumnProperty(rIdx, cIdx, 'backgroundColor', e.target.value)}
+                                  className="w-8 h-8 p-0 border-none cursor-pointer"
+                                />
+                                <Input 
+                                  type="text" 
+                                  value={col.backgroundColor || '#ffffff'} 
+                                  onChange={(e) => updateColumnProperty(rIdx, cIdx, 'backgroundColor', e.target.value)}
+                                  className="h-7 text-[10px] font-mono flex-1 uppercase"
+                                />
+                              </div>
                             </div>
                             
                             {isFreeform ? (

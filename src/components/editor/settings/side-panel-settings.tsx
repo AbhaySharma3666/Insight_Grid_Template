@@ -7,7 +7,8 @@ import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Slider } from '@/components/ui/slider';
 import { Switch } from '@/components/ui/switch';
 import { Button } from '@/components/ui/button';
-import { Plus, Trash2 } from 'lucide-react';
+import { Input } from '@/components/ui/input';
+import { Plus, Trash2, Palette } from 'lucide-react';
 
 export function SidePanelSettings() {
   const { canvasState, setCanvasState } = useEditor();
@@ -15,14 +16,14 @@ export function SidePanelSettings() {
   const addSideColumn = () => {
     setCanvasState(prev => {
       const currentGrid = prev.sidePanel.internalGrid || {
-        columns: [{ id: `s-col-${Date.now()}`, widthFraction: 1, borderRadius: 8, opacity: 1 }],
+        columns: [{ id: `s-col-${Date.now()}`, widthFraction: 1, borderRadius: 8, opacity: 1, backgroundColor: 'rgba(255,255,255,0.8)' }],
         rows: Array(3).fill(null).map(() => ({ heightFraction: 1/3 })),
         columnGap: 10,
         rowGap: 10,
         hasShadow: false,
         hasBorder: true,
       };
-      const newCols = [...currentGrid.columns, { id: `s-col-${Date.now()}`, widthFraction: 1, borderRadius: 8, opacity: 1 }];
+      const newCols = [...currentGrid.columns, { id: `s-col-${Date.now()}`, widthFraction: 1, borderRadius: 8, opacity: 1, backgroundColor: 'rgba(255,255,255,0.8)' }];
       const total = newCols.length;
       return {
         ...prev,
@@ -72,7 +73,7 @@ export function SidePanelSettings() {
   const addSideRow = () => {
     setCanvasState(prev => {
       const currentGrid = prev.sidePanel.internalGrid || {
-        columns: [{ id: `s-col-${Date.now()}`, widthFraction: 1, borderRadius: 8, opacity: 1 }],
+        columns: [{ id: `s-col-${Date.now()}`, widthFraction: 1, borderRadius: 8, opacity: 1, backgroundColor: 'rgba(255,255,255,0.8)' }],
         rows: Array(3).fill(null).map(() => ({ heightFraction: 1/3 })),
         columnGap: 10,
         rowGap: 10,
@@ -227,7 +228,7 @@ export function SidePanelSettings() {
                   sidePanel: { 
                     ...prev.sidePanel, 
                     internalGrid: val ? {
-                      columns: [{ id: `s-col-${Date.now()}`, widthFraction: 1, borderRadius: 8, opacity: 1 }],
+                      columns: [{ id: `s-col-${Date.now()}`, widthFraction: 1, borderRadius: 8, opacity: 1, backgroundColor: 'rgba(255,255,255,0.8)' }],
                       rows: Array(5).fill(null).map(() => ({ heightFraction: 0.2 })),
                       columnGap: 10,
                       rowGap: 10,
@@ -257,6 +258,27 @@ export function SidePanelSettings() {
                             <Trash2 className="w-3 h-3" />
                           </Button>
                         </div>
+
+                        <div className="space-y-1">
+                          <Label className="text-[8px] uppercase flex items-center gap-2">
+                            <Palette className="w-2 h-2" /> Cell Color
+                          </Label>
+                          <div className="flex gap-2 items-center">
+                            <Input 
+                              type="color" 
+                              value={col.backgroundColor || '#ffffff'} 
+                              onChange={(e) => updateSideColumnProperty(idx, 'backgroundColor', e.target.value)}
+                              className="w-6 h-6 p-0 border-none cursor-pointer"
+                            />
+                            <Input 
+                              type="text" 
+                              value={col.backgroundColor || '#ffffff'} 
+                              onChange={(e) => updateSideColumnProperty(idx, 'backgroundColor', e.target.value)}
+                              className="h-6 text-[8px] font-mono flex-1 uppercase"
+                            />
+                          </div>
+                        </div>
+
                         <div className="space-y-1">
                           <Label className="text-[8px] uppercase">Width Weight</Label>
                           <Slider 
