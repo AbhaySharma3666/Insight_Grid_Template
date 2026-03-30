@@ -136,11 +136,18 @@ export function CanvasArea() {
           {/* Top Header Row */}
           {canvasState.header.enabled && (
             <div 
-              className="flex flex-row shrink-0"
+              className={cn(
+                "flex flex-row shrink-0 transition-all duration-300",
+                canvasState.header.hasShadow && canvasState.header.colorMode === 'section' && "shadow-md",
+                canvasState.header.hasBorder && canvasState.header.colorMode === 'section' && "border"
+              )}
               style={{ 
                 height: `${canvasState.header.heightFraction * 100}%`,
                 gap: `${canvasState.header.columnGap}px`,
-                padding: `${canvasState.header.padding}px`
+                padding: `${canvasState.header.padding}px`,
+                backgroundColor: canvasState.header.colorMode === 'section' ? canvasState.header.sectionColor : 'transparent',
+                borderRadius: canvasState.header.colorMode === 'section' ? '12px' : '0',
+                borderColor: canvasState.mainGrid.borderColor || 'rgba(0,0,0,0.1)',
               }}
             >
               {canvasState.header.columns.map((col) => (
@@ -148,15 +155,15 @@ export function CanvasArea() {
                   key={col.id}
                   className={cn(
                     "grid-item-shadow",
-                    canvasState.header.hasShadow && "shadow-md",
-                    canvasState.header.hasBorder && "border"
+                    canvasState.header.hasShadow && canvasState.header.colorMode === 'individual' && "shadow-md",
+                    canvasState.header.hasBorder && canvasState.header.colorMode === 'individual' && "border"
                   )}
                   style={{
                     width: `${col.widthFraction * 100}%`,
                     borderRadius: `${col.borderRadius || 12}px`,
                     opacity: col.opacity ?? 1,
                     backgroundColor: canvasState.header.colorMode === 'section' 
-                      ? canvasState.header.sectionColor 
+                      ? 'transparent' 
                       : (col.backgroundColor || 'rgba(255,255,255,0.9)'),
                     borderColor: canvasState.mainGrid.borderColor || 'rgba(0,0,0,0.1)',
                   }}
@@ -175,18 +182,19 @@ export function CanvasArea() {
           >
             {canvasState.sidePanel.position !== 'none' && (
               <div 
-                className="h-full shrink-0 relative overflow-hidden"
+                className={cn(
+                  "h-full shrink-0 relative overflow-hidden transition-all duration-300",
+                  canvasState.sidePanel.internalGrid?.hasShadow && canvasState.sidePanel.colorMode === 'section' && "shadow-sm",
+                  canvasState.sidePanel.internalGrid?.hasBorder && canvasState.sidePanel.colorMode === 'section' && "border"
+                )}
                 style={{ 
                   width: `${sidePanelWidth}px`,
                   padding: `${canvasState.sidePanel.padding}px`,
-                  backgroundColor: canvasState.sidePanel.internalGrid 
-                    ? 'transparent' 
-                    : (canvasState.sidePanel.colorMode === 'section' 
-                      ? canvasState.sidePanel.sectionColor 
-                      : `rgba(255,255,255,${canvasState.sidePanel.opacity})`),
+                  backgroundColor: canvasState.sidePanel.colorMode === 'section' 
+                    ? canvasState.sidePanel.sectionColor 
+                    : (!canvasState.sidePanel.internalGrid ? `rgba(255,255,255,${canvasState.sidePanel.opacity})` : 'transparent'),
                   borderRadius: '12px',
-                  border: canvasState.sidePanel.internalGrid ? 'none' : '1px solid rgba(0,0,0,0.05)',
-                  transition: 'background-color 0.3s ease'
+                  border: (canvasState.sidePanel.colorMode === 'section' || !canvasState.sidePanel.internalGrid) ? '1px solid rgba(0,0,0,0.05)' : 'none',
                 }}
               >
                 {canvasState.sidePanel.internalGrid && (
@@ -196,7 +204,6 @@ export function CanvasArea() {
                       gridTemplateColumns: canvasState.sidePanel.internalGrid.columns.map(c => `${c.widthFraction}fr`).join(' '),
                       gridTemplateRows: canvasState.sidePanel.internalGrid.rows.map(r => `${r.heightFraction}fr`).join(' '),
                       gap: `${canvasState.sidePanel.internalGrid.rowGap}px ${canvasState.sidePanel.internalGrid.columnGap}px`,
-                      padding: '16px',
                       height: '100%',
                     }}
                   >
@@ -206,14 +213,14 @@ export function CanvasArea() {
                           key={`side-${rIdx}-${cIdx}`}
                           className={cn(
                             "grid-item-shadow",
-                            canvasState.sidePanel.internalGrid!.hasShadow && "shadow-sm",
-                            canvasState.sidePanel.internalGrid!.hasBorder && "border"
+                            canvasState.sidePanel.internalGrid!.hasShadow && canvasState.sidePanel.colorMode === 'individual' && "shadow-sm",
+                            canvasState.sidePanel.internalGrid!.hasBorder && canvasState.sidePanel.colorMode === 'individual' && "border"
                           )}
                           style={{
                             borderRadius: `${col.borderRadius || 8}px`,
                             opacity: col.opacity ?? 1,
                             backgroundColor: canvasState.sidePanel.colorMode === 'section'
-                              ? canvasState.sidePanel.sectionColor
+                              ? 'transparent'
                               : (col.backgroundColor || 'rgba(255,255,255,0.8)'),
                             borderColor: canvasState.sidePanel.internalGrid!.borderColor || 'rgba(0,0,0,0.1)',
                           }}
@@ -228,12 +235,17 @@ export function CanvasArea() {
             <div 
               ref={mainContentRef}
               className={cn(
-                "flex-1 h-full flex flex-col relative",
-                canvasState.layoutType === 'freeform' ? "block" : "flex"
+                "flex-1 h-full flex flex-col relative transition-all duration-300",
+                canvasState.layoutType === 'freeform' ? "block" : "flex",
+                canvasState.mainGrid.hasShadow && canvasState.mainGrid.colorMode === 'section' && "shadow-md",
+                canvasState.mainGrid.hasBorder && canvasState.mainGrid.colorMode === 'section' && "border"
               )}
               style={{ 
                 gap: canvasState.layoutType === 'freeform' ? '0' : `${canvasState.mainGrid.rowGap}px`,
-                padding: `${canvasState.mainGrid.padding}px`
+                padding: `${canvasState.mainGrid.padding}px`,
+                backgroundColor: canvasState.mainGrid.colorMode === 'section' ? canvasState.mainGrid.sectionColor : 'transparent',
+                borderRadius: canvasState.mainGrid.colorMode === 'section' ? '12px' : '0',
+                borderColor: canvasState.mainGrid.borderColor || 'rgba(0,0,0,0.08)',
               }}
             >
               {canvasState.mainGrid.rows.map((row, rIdx) => (
@@ -254,8 +266,8 @@ export function CanvasArea() {
                       onMouseDown={() => handleMouseDown(rIdx, cIdx)}
                       className={cn(
                         "grid-item-shadow flex items-center justify-center group",
-                        canvasState.mainGrid.hasShadow && "shadow-md",
-                        canvasState.mainGrid.hasBorder && "border",
+                        canvasState.mainGrid.hasShadow && canvasState.mainGrid.colorMode === 'individual' && "shadow-md",
+                        canvasState.mainGrid.hasBorder && canvasState.mainGrid.colorMode === 'individual' && "border",
                         canvasState.layoutType === 'freeform' && "absolute cursor-grab active:cursor-grabbing hover:ring-2 hover:ring-primary/20",
                         draggingItem?.rIdx === rIdx && draggingItem?.cIdx === cIdx && "z-50 ring-2 ring-primary scale-[1.02]"
                       )}
@@ -271,7 +283,7 @@ export function CanvasArea() {
                         borderRadius: `${col.borderRadius || 12}px`,
                         opacity: col.opacity ?? 1,
                         backgroundColor: canvasState.mainGrid.colorMode === 'section'
-                          ? canvasState.mainGrid.sectionColor
+                          ? 'transparent'
                           : (col.backgroundColor || 'rgba(255,255,255,0.7)'),
                         borderColor: canvasState.mainGrid.borderColor || 'rgba(0,0,0,0.08)',
                         transition: draggingItem ? 'none' : 'all 0.3s ease'
