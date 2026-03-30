@@ -6,7 +6,7 @@ import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
 import { Switch } from '@/components/ui/switch';
 import { Slider } from '@/components/ui/slider';
-import { Trash2, Plus, GripVertical, Columns, PanelTop } from 'lucide-react';
+import { Trash2, Plus, GripVertical, Columns, PanelTop, LayoutGrid } from 'lucide-react';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { HeaderSettings } from './header-settings';
 
@@ -91,224 +91,239 @@ export function GridSettings() {
   const isFreeform = canvasState.layoutType === 'freeform';
 
   return (
-    <div className="space-y-8 animate-fade-in">
-      {/* Header Settings Section */}
-      <div className="space-y-4">
-        <div className="flex items-center gap-2 mb-2">
-          <PanelTop className="w-4 h-4 text-primary" />
-          <Label className="text-sm font-bold uppercase tracking-wider text-muted-foreground">Header Configuration</Label>
-        </div>
-        <HeaderSettings />
-      </div>
+    <div className="animate-fade-in">
+      <Accordion type="single" collapsible defaultValue="main-grid" className="space-y-4">
+        {/* Header Configuration Section */}
+        <AccordionItem value="header" className="border rounded-lg px-4 bg-muted/5">
+          <AccordionTrigger className="hover:no-underline py-4">
+            <div className="flex items-center gap-2">
+              <PanelTop className="w-4 h-4 text-primary" />
+              <span className="text-sm font-bold uppercase tracking-wider text-muted-foreground">Header Configuration</span>
+            </div>
+          </AccordionTrigger>
+          <AccordionContent className="pt-2 pb-6">
+            <HeaderSettings />
+          </AccordionContent>
+        </AccordionItem>
 
-      <div className="space-y-4 pt-6 border-t">
-        <div className="flex items-center justify-between">
-          <Label className="text-sm font-bold uppercase tracking-wider text-muted-foreground">Main Grid Rows</Label>
-          <Button variant="outline" size="sm" className="h-7 gap-1" onClick={addRow}>
-            <Plus className="w-3 h-3" /> Add Row
-          </Button>
-        </div>
+        {/* Main Grid Rows Section */}
+        <AccordionItem value="main-grid" className="border rounded-lg px-4 bg-muted/5">
+          <AccordionTrigger className="hover:no-underline py-4">
+            <div className="flex items-center gap-2">
+              <LayoutGrid className="w-4 h-4 text-primary" />
+              <span className="text-sm font-bold uppercase tracking-wider text-muted-foreground">Main Grid Rows</span>
+            </div>
+          </AccordionTrigger>
+          <AccordionContent className="pt-2 pb-6 space-y-6">
+            <div className="flex items-center justify-between mb-2">
+              <Label className="text-[10px] font-bold uppercase text-muted-foreground tracking-widest">Layout Structure</Label>
+              <Button variant="outline" size="sm" className="h-7 gap-1" onClick={addRow}>
+                <Plus className="w-3 h-3" /> Add Row
+              </Button>
+            </div>
 
-        <Accordion type="multiple" className="space-y-4">
-          {canvasState.mainGrid.rows.map((row, rIdx) => (
-            <AccordionItem key={row.id} value={row.id} className="border rounded-lg bg-muted/20 px-4">
-              <AccordionTrigger className="hover:no-underline py-3">
-                <div className="flex items-center gap-3 w-full pr-4">
-                  <GripVertical className="w-4 h-4 text-muted-foreground" />
-                  <span className="text-xs font-bold uppercase">Row {rIdx + 1}</span>
-                  {!isFreeform && (
-                    <div className="ml-auto text-[10px] font-mono bg-muted px-1.5 rounded">
-                      {Math.round(row.heightFraction * 100)}% height
+            <Accordion type="multiple" className="space-y-4">
+              {canvasState.mainGrid.rows.map((row, rIdx) => (
+                <AccordionItem key={row.id} value={row.id} className="border rounded-lg bg-background px-4">
+                  <AccordionTrigger className="hover:no-underline py-3">
+                    <div className="flex items-center gap-3 w-full pr-4">
+                      <GripVertical className="w-4 h-4 text-muted-foreground/50" />
+                      <span className="text-xs font-bold uppercase">Row {rIdx + 1}</span>
+                      {!isFreeform && (
+                        <div className="ml-auto text-[10px] font-mono bg-muted px-1.5 rounded">
+                          {Math.round(row.heightFraction * 100)}% height
+                        </div>
+                      )}
                     </div>
-                  )}
-                </div>
-              </AccordionTrigger>
-              <AccordionContent className="pt-2 pb-4 space-y-6">
-                {!isFreeform && (
+                  </AccordionTrigger>
+                  <AccordionContent className="pt-2 pb-4 space-y-6">
+                    {!isFreeform && (
+                      <div className="space-y-3">
+                        <Label className="text-[10px] text-muted-foreground uppercase">Row Height Weight</Label>
+                        <Slider 
+                          value={[row.heightFraction * 100]} 
+                          min={1} max={100} step={1}
+                          onValueChange={(val) => updateRowHeight(rIdx, val[0] / 100)}
+                        />
+                      </div>
+                    )}
+
+                    <div className="space-y-4 pt-4 border-t border-dashed">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-2">
+                          <Columns className="w-3 h-3 text-primary" />
+                          <Label className="text-[10px] uppercase font-bold">Row Columns</Label>
+                        </div>
+                        <Button variant="ghost" size="sm" className="h-6 px-2 text-[10px] gap-1 hover:bg-primary/10" onClick={() => addColumnToRow(rIdx)}>
+                          <Plus className="w-3 h-3" /> Add
+                        </Button>
+                      </div>
+
+                      <div className="space-y-4">
+                        {row.columns.map((col, cIdx) => (
+                          <div key={col.id} className="space-y-4 bg-muted/10 p-3 rounded border border-dashed">
+                            <div className="flex items-center justify-between">
+                              <span className="text-[10px] font-bold">Cell {cIdx + 1}</span>
+                              <Button 
+                                variant="ghost" size="icon" className="h-5 w-5 text-destructive hover:bg-destructive/10"
+                                onClick={() => removeColumnFromRow(rIdx, cIdx)}
+                                disabled={row.columns.length <= 1}
+                              >
+                                <Trash2 className="w-3.5 h-3.5" />
+                              </Button>
+                            </div>
+                            
+                            {isFreeform ? (
+                              <div className="grid grid-cols-2 gap-4">
+                                <div className="space-y-2">
+                                  <div className="flex justify-between items-center">
+                                    <Label className="text-[9px] uppercase">X (%)</Label>
+                                    <span className="text-[9px] font-mono">{Math.round(col.x || 0)}%</span>
+                                  </div>
+                                  <Slider 
+                                    value={[col.x || 0]} 
+                                    min={0} max={100} step={1}
+                                    onValueChange={(val) => updateColumnProperty(rIdx, cIdx, 'x', val[0])}
+                                  />
+                                </div>
+                                <div className="space-y-2">
+                                  <div className="flex justify-between items-center">
+                                    <Label className="text-[9px] uppercase">Y (%)</Label>
+                                    <span className="text-[9px] font-mono">{Math.round(col.y || 0)}%</span>
+                                  </div>
+                                  <Slider 
+                                    value={[col.y || 0]} 
+                                    min={0} max={100} step={1}
+                                    onValueChange={(val) => updateColumnProperty(rIdx, cIdx, 'y', val[0])}
+                                  />
+                                </div>
+                                <div className="space-y-2">
+                                  <div className="flex justify-between items-center">
+                                    <Label className="text-[9px] uppercase">W (%)</Label>
+                                    <span className="text-[9px] font-mono">{Math.round(col.w || 20)}%</span>
+                                  </div>
+                                  <Slider 
+                                    value={[col.w || 20]} 
+                                    min={5} max={100} step={1}
+                                    onValueChange={(val) => updateColumnProperty(rIdx, cIdx, 'w', val[0])}
+                                  />
+                                </div>
+                                <div className="space-y-2">
+                                  <div className="flex justify-between items-center">
+                                    <Label className="text-[9px] uppercase">H (%)</Label>
+                                    <span className="text-[9px] font-mono">{Math.round(col.h || 20)}%</span>
+                                  </div>
+                                  <Slider 
+                                    value={[col.h || 20]} 
+                                    min={5} max={100} step={1}
+                                    onValueChange={(val) => updateColumnProperty(rIdx, cIdx, 'h', val[0])}
+                                  />
+                                </div>
+                              </div>
+                            ) : (
+                              <div className="space-y-2">
+                                <div className="flex justify-between">
+                                  <Label className="text-[9px] uppercase">Width Weight</Label>
+                                  <span className="text-[9px] font-mono">{Math.round(col.widthFraction * 100)}%</span>
+                                </div>
+                                <Slider 
+                                  value={[col.widthFraction * 100]} 
+                                  min={1} max={100} step={1}
+                                  onValueChange={(val) => updateColumnProperty(rIdx, cIdx, 'widthFraction', val[0] / 100)}
+                                />
+                              </div>
+                            )}
+
+                            <div className="space-y-2">
+                              <div className="flex justify-between">
+                                <Label className="text-[9px] uppercase">Radius</Label>
+                                <span className="text-[9px] font-mono">{col.borderRadius || 0}px</span>
+                              </div>
+                              <Slider 
+                                value={[col.borderRadius || 0]} 
+                                min={0} max={60} step={1}
+                                onValueChange={(val) => updateColumnProperty(rIdx, cIdx, 'borderRadius', val[0])}
+                              />
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+
+                    <Button 
+                      variant="ghost" 
+                      size="sm" 
+                      className="w-full h-8 text-destructive text-[10px] uppercase mt-2 hover:bg-destructive/5"
+                      onClick={() => removeRow(rIdx)}
+                      disabled={canvasState.mainGrid.rows.length <= 1}
+                    >
+                      <Trash2 className="w-3 h-3 mr-2" /> Delete Row {rIdx + 1}
+                    </Button>
+                  </AccordionContent>
+                </AccordionItem>
+              ))}
+            </Accordion>
+
+            <div className="space-y-6 pt-4 border-t">
+              {!isFreeform && (
+                <>
                   <div className="space-y-3">
-                    <Label className="text-[10px] text-muted-foreground uppercase">Row Height Weight</Label>
+                    <div className="flex justify-between">
+                      <Label className="text-xs">Horizontal Gap</Label>
+                      <span className="text-xs text-muted-foreground">{canvasState.mainGrid.columnGap}px</span>
+                    </div>
                     <Slider 
-                      value={[row.heightFraction * 100]} 
-                      min={1} max={100} step={1}
-                      onValueChange={(val) => updateRowHeight(rIdx, val[0] / 100)}
+                      value={[canvasState.mainGrid.columnGap]} 
+                      min={0} max={50} step={2}
+                      onValueChange={(val) => setCanvasState(prev => ({ 
+                        ...prev, 
+                        mainGrid: { ...prev.mainGrid, columnGap: val[0] } 
+                      }))}
                     />
                   </div>
-                )}
 
-                <div className="space-y-4 pt-4 border-t border-dashed">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-2">
-                      <Columns className="w-3 h-3 text-primary" />
-                      <Label className="text-[10px] uppercase font-bold">Row Columns</Label>
+                  <div className="space-y-3">
+                    <div className="flex justify-between">
+                      <Label className="text-xs">Vertical Gap</Label>
+                      <span className="text-xs text-muted-foreground">{canvasState.mainGrid.rowGap}px</span>
                     </div>
-                    <Button variant="ghost" size="sm" className="h-6 px-2 text-[10px] gap-1 hover:bg-primary/10" onClick={() => addColumnToRow(rIdx)}>
-                      <Plus className="w-3 h-3" /> Add
-                    </Button>
+                    <Slider 
+                      value={[canvasState.mainGrid.rowGap]} 
+                      min={0} max={50} step={2}
+                      onValueChange={(val) => setCanvasState(prev => ({ 
+                        ...prev, 
+                        mainGrid: { ...prev.mainGrid, rowGap: val[0] } 
+                      }))}
+                    />
                   </div>
+                </>
+              )}
 
-                  <div className="space-y-4">
-                    {row.columns.map((col, cIdx) => (
-                      <div key={col.id} className="space-y-4 bg-background/50 p-3 rounded border border-dashed">
-                        <div className="flex items-center justify-between">
-                          <span className="text-[10px] font-bold">Cell {cIdx + 1}</span>
-                          <Button 
-                            variant="ghost" size="icon" className="h-5 w-5 text-destructive hover:bg-destructive/10"
-                            onClick={() => removeColumnFromRow(rIdx, cIdx)}
-                            disabled={row.columns.length <= 1}
-                          >
-                            <Trash2 className="w-3.5 h-3.5" />
-                          </Button>
-                        </div>
-                        
-                        {isFreeform ? (
-                          <div className="grid grid-cols-2 gap-4">
-                            <div className="space-y-2">
-                              <div className="flex justify-between items-center">
-                                <Label className="text-[9px] uppercase">X (%)</Label>
-                                <span className="text-[9px] font-mono">{Math.round(col.x || 0)}%</span>
-                              </div>
-                              <Slider 
-                                value={[col.x || 0]} 
-                                min={0} max={100} step={1}
-                                onValueChange={(val) => updateColumnProperty(rIdx, cIdx, 'x', val[0])}
-                              />
-                            </div>
-                            <div className="space-y-2">
-                              <div className="flex justify-between items-center">
-                                <Label className="text-[9px] uppercase">Y (%)</Label>
-                                <span className="text-[9px] font-mono">{Math.round(col.y || 0)}%</span>
-                              </div>
-                              <Slider 
-                                value={[col.y || 0]} 
-                                min={0} max={100} step={1}
-                                onValueChange={(val) => updateColumnProperty(rIdx, cIdx, 'y', val[0])}
-                              />
-                            </div>
-                            <div className="space-y-2">
-                              <div className="flex justify-between items-center">
-                                <Label className="text-[9px] uppercase">W (%)</Label>
-                                <span className="text-[9px] font-mono">{Math.round(col.w || 20)}%</span>
-                              </div>
-                              <Slider 
-                                value={[col.w || 20]} 
-                                min={5} max={100} step={1}
-                                onValueChange={(val) => updateColumnProperty(rIdx, cIdx, 'w', val[0])}
-                              />
-                            </div>
-                            <div className="space-y-2">
-                              <div className="flex justify-between items-center">
-                                <Label className="text-[9px] uppercase">H (%)</Label>
-                                <span className="text-[9px] font-mono">{Math.round(col.h || 20)}%</span>
-                              </div>
-                              <Slider 
-                                value={[col.h || 20]} 
-                                min={5} max={100} step={1}
-                                onValueChange={(val) => updateColumnProperty(rIdx, cIdx, 'h', val[0])}
-                              />
-                            </div>
-                          </div>
-                        ) : (
-                          <div className="space-y-2">
-                            <div className="flex justify-between">
-                              <Label className="text-[9px] uppercase">Width Weight</Label>
-                              <span className="text-[9px] font-mono">{Math.round(col.widthFraction * 100)}%</span>
-                            </div>
-                            <Slider 
-                              value={[col.widthFraction * 100]} 
-                              min={1} max={100} step={1}
-                              onValueChange={(val) => updateColumnProperty(rIdx, cIdx, 'widthFraction', val[0] / 100)}
-                            />
-                          </div>
-                        )}
-
-                        <div className="space-y-2">
-                          <div className="flex justify-between">
-                            <Label className="text-[9px] uppercase">Radius</Label>
-                            <span className="text-[9px] font-mono">{col.borderRadius || 0}px</span>
-                          </div>
-                          <Slider 
-                            value={[col.borderRadius || 0]} 
-                            min={0} max={60} step={1}
-                            onValueChange={(val) => updateColumnProperty(rIdx, cIdx, 'borderRadius', val[0])}
-                          />
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-
-                <Button 
-                  variant="ghost" 
-                  size="sm" 
-                  className="w-full h-8 text-destructive text-[10px] uppercase mt-2 hover:bg-destructive/5"
-                  onClick={() => removeRow(rIdx)}
-                  disabled={canvasState.mainGrid.rows.length <= 1}
-                >
-                  <Trash2 className="w-3 h-3 mr-2" /> Delete Row {rIdx + 1}
-                </Button>
-              </AccordionContent>
-            </AccordionItem>
-          ))}
-        </Accordion>
-      </div>
-
-      <div className="space-y-6 pt-6 border-t">
-        {!isFreeform && (
-          <>
-            <div className="space-y-3">
-              <div className="flex justify-between">
-                <Label>Horizontal Gap</Label>
-                <span className="text-xs text-muted-foreground">{canvasState.mainGrid.columnGap}px</span>
+              <div className="flex items-center justify-between">
+                <Label className="text-xs">Grid Shadows</Label>
+                <Switch 
+                  checked={canvasState.mainGrid.hasShadow} 
+                  onCheckedChange={(val) => setCanvasState(prev => ({ 
+                    ...prev, 
+                    mainGrid: { ...prev.mainGrid, hasShadow: val } 
+                  }))}
+                />
               </div>
-              <Slider 
-                value={[canvasState.mainGrid.columnGap]} 
-                min={0} max={50} step={2}
-                onValueChange={(val) => setCanvasState(prev => ({ 
-                  ...prev, 
-                  mainGrid: { ...prev.mainGrid, columnGap: val[0] } 
-                }))}
-              />
-            </div>
 
-            <div className="space-y-3">
-              <div className="flex justify-between">
-                <Label>Vertical Gap</Label>
-                <span className="text-xs text-muted-foreground">{canvasState.mainGrid.rowGap}px</span>
+              <div className="flex items-center justify-between">
+                <Label className="text-xs">Grid Borders</Label>
+                <Switch 
+                  checked={canvasState.mainGrid.hasBorder} 
+                  onCheckedChange={(val) => setCanvasState(prev => ({ 
+                    ...prev, 
+                    mainGrid: { ...prev.mainGrid, hasBorder: val } 
+                  }))}
+                />
               </div>
-              <Slider 
-                value={[canvasState.mainGrid.rowGap]} 
-                min={0} max={50} step={2}
-                onValueChange={(val) => setCanvasState(prev => ({ 
-                  ...prev, 
-                  mainGrid: { ...prev.mainGrid, rowGap: val[0] } 
-                }))}
-              />
             </div>
-          </>
-        )}
-
-        <div className="flex items-center justify-between">
-          <Label>Grid Shadows</Label>
-          <Switch 
-            checked={canvasState.mainGrid.hasShadow} 
-            onCheckedChange={(val) => setCanvasState(prev => ({ 
-              ...prev, 
-              mainGrid: { ...prev.mainGrid, hasShadow: val } 
-            }))}
-          />
-        </div>
-
-        <div className="flex items-center justify-between">
-          <Label>Grid Borders</Label>
-          <Switch 
-            checked={canvasState.mainGrid.hasBorder} 
-            onCheckedChange={(val) => setCanvasState(prev => ({ 
-              ...prev, 
-              mainGrid: { ...prev.mainGrid, hasBorder: val } 
-            }))}
-          />
-        </div>
-      </div>
+          </AccordionContent>
+        </AccordionItem>
+      </Accordion>
     </div>
   );
 }
