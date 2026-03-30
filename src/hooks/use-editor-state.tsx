@@ -21,6 +21,11 @@ interface CanvasState {
   layoutType: 'grid' | 'freeform' | 'autofit';
   backgroundColor: string;
   backgroundImage: string | null;
+  backgroundGradient: {
+    enabled: boolean;
+    colors: string[];
+    angle: number;
+  };
   header: {
     enabled: boolean;
     heightFraction: number;
@@ -57,6 +62,11 @@ const DEFAULT_STATE: CanvasState = {
   layoutType: 'grid',
   backgroundColor: '#ECF0F7',
   backgroundImage: null,
+  backgroundGradient: {
+    enabled: false,
+    colors: ['#4F46E5', '#06B6D4'],
+    angle: 135,
+  },
   header: {
     enabled: true,
     heightFraction: 0.12,

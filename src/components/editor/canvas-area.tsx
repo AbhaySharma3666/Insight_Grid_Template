@@ -63,6 +63,28 @@ export function CanvasArea() {
     height: '100%',
   } : {};
 
+  // Construct background style
+  const getBackgroundStyle = () => {
+    if (canvasState.backgroundImage) {
+      return {
+        backgroundImage: `url(${canvasState.backgroundImage})`,
+        backgroundSize: 'cover',
+        backgroundPosition: 'center',
+      };
+    }
+    
+    if (canvasState.backgroundGradient.enabled) {
+      const gradient = `linear-gradient(${canvasState.backgroundGradient.angle}deg, ${canvasState.backgroundGradient.colors.join(', ')})`;
+      return {
+        background: gradient,
+      };
+    }
+
+    return {
+      backgroundColor: canvasState.backgroundColor,
+    };
+  };
+
   return (
     <div ref={containerRef} className="flex-1 bg-background overflow-hidden flex items-center justify-center p-10 select-none relative">
       <div 
@@ -71,10 +93,7 @@ export function CanvasArea() {
         style={{
           width: `${canvasWidth}px`,
           height: `${canvasHeight}px`,
-          backgroundColor: canvasState.backgroundColor,
-          backgroundImage: canvasState.backgroundImage ? `url(${canvasState.backgroundImage})` : 'none',
-          backgroundSize: 'cover',
-          backgroundPosition: 'center',
+          ...getBackgroundStyle(),
           transform: `scale(${finalScale})`,
           transition: 'transform 0.2s ease-out',
         }}

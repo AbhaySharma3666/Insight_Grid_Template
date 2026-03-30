@@ -85,22 +85,8 @@ Layout Hierarchy:
 
 Styling:
 - Provide individual 'borderRadius' for columns to create a modern 'Bento' or card-based look.
-- Ensure heightFractions for mainGrid.rows sum to approximately 1.0.
-- Ensure widthFractions for columns within any row sum to 1.0.
-
-Example structure:
-{
-  "canvas": { "aspectRatio": "16:9", "backgroundColor": "#F0F2F5" },
-  "layoutType": "grid",
-  "mainGrid": {
-    "rows": [
-      { "heightFraction": 0.3, "columns": [{ "widthFraction": 1.0, "borderRadius": 12 }] }
-    ],
-    "columnGap": 20, "rowGap": 20, "hasShadow": true, "hasBorder": false
-  },
-  "sidePanel": { "position": "left", "widthPercentage": 20 },
-  "description": "Clean executive summary..."
-}`,
+- Ensure heightFractions for mainGrid.rows sum up to 1.0.
+- Ensure widthFractions for columns within any row sum up to 1.0.`,
 });
 
 const aiLayoutSuggestionFlow = ai.defineFlow(
