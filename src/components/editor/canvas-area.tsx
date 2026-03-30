@@ -136,8 +136,11 @@ export function CanvasArea() {
         }}
       >
         <div 
-          className="flex flex-col w-full h-full p-6"
-          style={{ gap: `${canvasState.mainGrid.rowGap}px` }}
+          className="flex flex-col w-full h-full"
+          style={{ 
+            padding: `${canvasState.canvasPadding}px`,
+            gap: `${canvasState.mainGrid.rowGap}px` 
+          }}
         >
           {/* Top Header Row */}
           {canvasState.header.enabled && (

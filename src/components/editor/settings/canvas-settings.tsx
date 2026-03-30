@@ -8,7 +8,7 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Switch } from '@/components/ui/switch';
 import { Slider } from '@/components/ui/slider';
-import { Layout, Palette, Image as ImageIcon, Upload, Plus, Trash2, MoveHorizontal } from 'lucide-react';
+import { Layout, Palette, Image as ImageIcon, Upload, Plus, Trash2, Maximize } from 'lucide-react';
 
 export function CanvasSettings() {
   const { canvasState, setCanvasState } = useEditor();
@@ -111,6 +111,25 @@ export function CanvasSettings() {
                 <SelectItem value="1:1">Square (1:1)</SelectItem>
               </SelectContent>
             </Select>
+          </div>
+        </div>
+      </div>
+
+      <div className="space-y-4 pt-6 border-t">
+        <Label className="flex items-center gap-2 text-sm font-bold uppercase tracking-wider text-muted-foreground">
+          <Maximize className="w-4 h-4" /> Canvas Spacing
+        </Label>
+        <div className="space-y-4">
+          <div className="space-y-3">
+            <div className="flex justify-between">
+              <Label className="text-xs">Overall Padding (px)</Label>
+              <span className="text-xs font-mono">{canvasState.canvasPadding}px</span>
+            </div>
+            <Slider 
+              value={[canvasState.canvasPadding]} 
+              min={0} max={100} step={2}
+              onValueChange={(val) => setCanvasState(prev => ({ ...prev, canvasPadding: val[0] }))}
+            />
           </div>
         </div>
       </div>

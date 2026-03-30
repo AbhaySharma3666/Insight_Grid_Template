@@ -27,6 +27,7 @@ interface CanvasState {
   aspectRatio: string;
   layoutType: 'grid' | 'freeform' | 'autofit';
   backgroundColor: string;
+  canvasPadding: number;
   backgroundImage: string | null;
   backgroundGradient: {
     enabled: boolean;
@@ -69,6 +70,7 @@ const DEFAULT_STATE: CanvasState = {
   aspectRatio: '16:9',
   layoutType: 'grid',
   backgroundColor: '#ECF0F7',
+  canvasPadding: 24,
   backgroundImage: null,
   backgroundGradient: {
     enabled: false,
@@ -222,7 +224,6 @@ export function EditorProvider({ children }: { children: React.ReactNode }) {
     });
 
     try {
-      // Temporarily remove transform for clean capture
       const originalTransform = canvasRef.current.style.transform;
       canvasRef.current.style.transform = 'none';
       
@@ -231,7 +232,6 @@ export function EditorProvider({ children }: { children: React.ReactNode }) {
         cacheBust: true,
       });
       
-      // Restore transform
       canvasRef.current.style.transform = originalTransform;
 
       const link = document.createElement('a');
