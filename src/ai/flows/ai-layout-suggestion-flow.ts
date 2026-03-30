@@ -25,7 +25,7 @@ const AiLayoutSuggestionOutputSchema = z.object({
   header: z.object({
     heightFraction: z.number().min(0).max(1),
     columns: z.array(z.object({ widthFraction: z.number() })),
-  }).optional().describe('Optional header row definition.'),
+  }).optional().describe('Optional header row definition spanning the full top of the canvas.'),
   mainGrid: z.object({
     rows: z.array(
       z.object({
@@ -68,11 +68,17 @@ const prompt = ai.definePrompt({
   name: 'aiLayoutSuggestionPrompt',
   input: {schema: AiLayoutSuggestionInputSchema},
   output: {schema: AiLayoutSuggestionOutputSchema},
-  prompt: `You are an expert Power BI designer. Suggest a professional layout for: "{{{dashboardPurpose}}}".
+  prompt: `You are an expert Power BI designer. Suggest a professional dashboard layout for: "{{{dashboardPurpose}}}".
   
-You can optionally include a 'header' row at the top (usually for title and logo).
-The 'mainGrid' contains rows, and each row has its own 'columns'.
-The 'sidePanel' is for filters/navigation.
+Layout Hierarchy:
+1. Canvas: Overall background and ratio.
+2. Header: An optional row at the very top (full width).
+3. Body: A container below the header containing:
+   a. Side Panel: Optional (left/right) for filters.
+   b. Main Grid: The primary content area containing one or more rows. Each row has its own column definition for complex "Bento" layouts.
+
+Ensure heightFractions for mainGrid.rows sum to approximately 1.0 (relative to the body area).
+Ensure widthFractions for columns within any row sum to 1.0.
 
 Return a JSON object matching the schema.`,
 });
