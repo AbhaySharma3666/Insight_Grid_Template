@@ -6,8 +6,9 @@ import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
 import { Switch } from '@/components/ui/switch';
 import { Slider } from '@/components/ui/slider';
-import { Trash2, Plus, GripVertical, Columns, Move, Maximize2 } from 'lucide-react';
+import { Trash2, Plus, GripVertical, Columns, PanelTop } from 'lucide-react';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
+import { HeaderSettings } from './header-settings';
 
 export function GridSettings() {
   const { canvasState, setCanvasState } = useEditor();
@@ -91,9 +92,18 @@ export function GridSettings() {
 
   return (
     <div className="space-y-8 animate-fade-in">
+      {/* Header Settings Section */}
       <div className="space-y-4">
+        <div className="flex items-center gap-2 mb-2">
+          <PanelTop className="w-4 h-4 text-primary" />
+          <Label className="text-sm font-bold uppercase tracking-wider text-muted-foreground">Header Configuration</Label>
+        </div>
+        <HeaderSettings />
+      </div>
+
+      <div className="space-y-4 pt-6 border-t">
         <div className="flex items-center justify-between">
-          <Label className="text-sm font-semibold">Row Management</Label>
+          <Label className="text-sm font-bold uppercase tracking-wider text-muted-foreground">Main Grid Rows</Label>
           <Button variant="outline" size="sm" className="h-7 gap-1" onClick={addRow}>
             <Plus className="w-3 h-3" /> Add Row
           </Button>
