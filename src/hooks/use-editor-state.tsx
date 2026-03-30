@@ -7,6 +7,7 @@ import { useToast } from '@/hooks/use-toast';
 interface ColumnDefinition {
   id: string;
   widthFraction: number;
+  borderRadius?: number;
 }
 
 interface RowDefinition {
@@ -17,6 +18,7 @@ interface RowDefinition {
 
 interface CanvasState {
   aspectRatio: string;
+  layoutType: 'grid' | 'freeform' | 'autofit';
   backgroundColor: string;
   backgroundImage: string | null;
   header: {
@@ -39,7 +41,7 @@ interface CanvasState {
     widthPercentage: number;
     panelGap: number;
     internalGrid?: {
-      columns: { widthFraction: number }[];
+      columns: ColumnDefinition[];
       rows: { heightFraction: number }[];
       columnGap: number;
       rowGap: number;
@@ -52,6 +54,7 @@ interface CanvasState {
 
 const DEFAULT_STATE: CanvasState = {
   aspectRatio: '16:9',
+  layoutType: 'grid',
   backgroundColor: '#ECF0F7',
   backgroundImage: null,
   header: {
@@ -60,8 +63,8 @@ const DEFAULT_STATE: CanvasState = {
     hasShadow: true,
     hasBorder: false,
     columns: [
-      { id: 'h-col-1', widthFraction: 0.3 },
-      { id: 'h-col-2', widthFraction: 0.7 },
+      { id: 'h-col-1', widthFraction: 0.3, borderRadius: 12 },
+      { id: 'h-col-2', widthFraction: 0.7, borderRadius: 12 },
     ]
   },
   mainGrid: {
@@ -70,18 +73,18 @@ const DEFAULT_STATE: CanvasState = {
         id: 'r1',
         heightFraction: 0.25,
         columns: [
-          { id: 'r1c1', widthFraction: 0.25 },
-          { id: 'r1c2', widthFraction: 0.25 },
-          { id: 'r1c3', widthFraction: 0.25 },
-          { id: 'r1c4', widthFraction: 0.25 },
+          { id: 'r1c1', widthFraction: 0.25, borderRadius: 12 },
+          { id: 'r1c2', widthFraction: 0.25, borderRadius: 12 },
+          { id: 'r1c3', widthFraction: 0.25, borderRadius: 12 },
+          { id: 'r1c4', widthFraction: 0.25, borderRadius: 12 },
         ]
       },
       {
         id: 'r2',
         heightFraction: 0.75,
         columns: [
-          { id: 'r2c1', widthFraction: 0.65 },
-          { id: 'r2c2', widthFraction: 0.35 },
+          { id: 'r2c1', widthFraction: 0.65, borderRadius: 12 },
+          { id: 'r2c2', widthFraction: 0.35, borderRadius: 12 },
         ]
       }
     ],
@@ -96,7 +99,7 @@ const DEFAULT_STATE: CanvasState = {
     widthPercentage: 20,
     panelGap: 20,
     internalGrid: {
-      columns: [{ widthFraction: 1 }],
+      columns: [{ id: 's-col-1', widthFraction: 1, borderRadius: 8 }],
       rows: Array(5).fill(null).map(() => ({ heightFraction: 0.2 })),
       columnGap: 10,
       rowGap: 10,
@@ -133,13 +136,15 @@ export function EditorProvider({ children }: { children: React.ReactNode }) {
       ...prev,
       aspectRatio: suggestion.canvas.aspectRatio,
       backgroundColor: suggestion.canvas.backgroundColor,
+      layoutType: (suggestion as any).layoutType || 'grid',
       header: {
         ...prev.header,
         enabled: !!suggestion.header,
         heightFraction: suggestion.header?.heightFraction || 0.12,
         columns: suggestion.header?.columns.map((col, idx) => ({
           id: `h-col-${idx}-${Date.now()}`,
-          widthFraction: col.widthFraction
+          widthFraction: col.widthFraction,
+          borderRadius: (col as any).borderRadius || 12
         })) || prev.header.columns
       },
       mainGrid: {
@@ -150,6 +155,7 @@ export function EditorProvider({ children }: { children: React.ReactNode }) {
           columns: row.columns.map((col, cIdx) => ({
             id: `col-${rIdx}-${cIdx}-${Date.now()}`,
             widthFraction: col.widthFraction,
+            borderRadius: (col as any).borderRadius || 12,
           }))
         })),
         columnGap: suggestion.mainGrid.columnGap,
@@ -163,7 +169,14 @@ export function EditorProvider({ children }: { children: React.ReactNode }) {
         position: suggestion.sidePanel.position,
         widthPercentage: suggestion.sidePanel.widthPercentage || 20,
         panelGap: suggestion.sidePanel.panelGap || 20,
-        internalGrid: suggestion.sidePanel.internalGrid,
+        internalGrid: suggestion.sidePanel.internalGrid ? {
+          ...suggestion.sidePanel.internalGrid,
+          columns: suggestion.sidePanel.internalGrid.columns.map((c, idx) => ({
+            id: `s-col-${idx}-${Date.now()}`,
+            widthFraction: c.widthFraction,
+            borderRadius: (c as any).borderRadius || 8
+          }))
+        } : undefined,
       },
     }));
     

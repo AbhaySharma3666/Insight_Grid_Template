@@ -6,7 +6,7 @@ import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
 import { Switch } from '@/components/ui/switch';
 import { Slider } from '@/components/ui/slider';
-import { Trash2, Plus, GripVertical, Columns } from 'lucide-react';
+import { Trash2, Plus, GripVertical, Columns, Settings2 } from 'lucide-react';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 
 export function GridSettings() {
@@ -17,7 +17,7 @@ export function GridSettings() {
       const newRows = [...prev.mainGrid.rows, {
         id: `row-${Date.now()}`,
         heightFraction: 1,
-        columns: [{ id: `col-${Date.now()}`, widthFraction: 1 }]
+        columns: [{ id: `col-${Date.now()}`, widthFraction: 1, borderRadius: 12 }]
       }];
       const total = newRows.length;
       return {
@@ -50,7 +50,7 @@ export function GridSettings() {
     setCanvasState(prev => {
       const newRows = [...prev.mainGrid.rows];
       const row = newRows[rowIndex];
-      const newCols = [...row.columns, { id: `col-${Date.now()}`, widthFraction: 1 }];
+      const newCols = [...row.columns, { id: `col-${Date.now()}`, widthFraction: 1, borderRadius: 12 }];
       const total = newCols.length;
       newRows[rowIndex] = {
         ...row,
@@ -60,12 +60,12 @@ export function GridSettings() {
     });
   };
 
-  const updateColumnWidth = (rowIndex: number, colIndex: number, val: number) => {
+  const updateColumnProperty = (rowIndex: number, colIndex: number, key: string, val: any) => {
     setCanvasState(prev => {
       const newRows = [...prev.mainGrid.rows];
       const row = newRows[rowIndex];
       const newCols = [...row.columns];
-      newCols[colIndex] = { ...newCols[colIndex], widthFraction: val };
+      newCols[colIndex] = { ...newCols[colIndex], [key]: val };
       newRows[rowIndex] = { ...row, columns: newCols };
       return { ...prev, mainGrid: { ...prev.mainGrid, rows: newRows } };
     });
@@ -125,24 +125,43 @@ export function GridSettings() {
                     </Button>
                   </div>
 
-                  <div className="space-y-3">
+                  <div className="space-y-4">
                     {row.columns.map((col, cIdx) => (
-                      <div key={col.id} className="space-y-2 bg-background/50 p-2 rounded border border-dashed">
+                      <div key={col.id} className="space-y-3 bg-background/50 p-3 rounded border border-dashed">
                         <div className="flex items-center justify-between">
-                          <span className="text-[9px] font-mono">Column {cIdx + 1} ({Math.round(col.widthFraction * 100)}%)</span>
+                          <span className="text-[10px] font-bold">Column {cIdx + 1}</span>
                           <Button 
-                            variant="ghost" size="icon" className="h-4 w-4 text-destructive hover:bg-destructive/10"
+                            variant="ghost" size="icon" className="h-5 w-5 text-destructive hover:bg-destructive/10"
                             onClick={() => removeColumnFromRow(rIdx, cIdx)}
                             disabled={row.columns.length <= 1}
                           >
-                            <Trash2 className="w-3 h-3" />
+                            <Trash2 className="w-3.5 h-3.5" />
                           </Button>
                         </div>
-                        <Slider 
-                          value={[col.widthFraction * 100]} 
-                          min={1} max={100} step={1}
-                          onValueChange={(val) => updateColumnWidth(rIdx, cIdx, val[0] / 100)}
-                        />
+                        
+                        <div className="space-y-2">
+                          <div className="flex justify-between">
+                            <Label className="text-[9px] uppercase">Width Weight</Label>
+                            <span className="text-[9px] font-mono">{Math.round(col.widthFraction * 100)}%</span>
+                          </div>
+                          <Slider 
+                            value={[col.widthFraction * 100]} 
+                            min={1} max={100} step={1}
+                            onValueChange={(val) => updateColumnProperty(rIdx, cIdx, 'widthFraction', val[0] / 100)}
+                          />
+                        </div>
+
+                        <div className="space-y-2">
+                          <div className="flex justify-between">
+                            <Label className="text-[9px] uppercase">Corner Radius</Label>
+                            <span className="text-[9px] font-mono">{col.borderRadius || 0}px</span>
+                          </div>
+                          <Slider 
+                            value={[col.borderRadius || 0]} 
+                            min={0} max={60} step={1}
+                            onValueChange={(val) => updateColumnProperty(rIdx, cIdx, 'borderRadius', val[0])}
+                          />
+                        </div>
                       </div>
                     ))}
                   </div>

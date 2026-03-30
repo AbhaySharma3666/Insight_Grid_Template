@@ -13,7 +13,7 @@ export function HeaderSettings() {
 
   const addColumn = () => {
     setCanvasState(prev => {
-      const newCols = [...prev.header.columns, { id: `h-col-${Date.now()}`, widthFraction: 1 }];
+      const newCols = [...prev.header.columns, { id: `h-col-${Date.now()}`, widthFraction: 1, borderRadius: 12 }];
       const total = newCols.length;
       return {
         ...prev,
@@ -25,10 +25,10 @@ export function HeaderSettings() {
     });
   };
 
-  const updateColumnWidth = (index: number, val: number) => {
+  const updateColumnProperty = (index: number, key: string, val: any) => {
     setCanvasState(prev => {
       const newCols = [...prev.header.columns];
-      newCols[index] = { ...newCols[index], widthFraction: val };
+      newCols[index] = { ...newCols[index], [key]: val };
       return {
         ...prev,
         header: { ...prev.header, columns: newCols }
@@ -95,9 +95,9 @@ export function HeaderSettings() {
               </Button>
             </div>
 
-            <div className="space-y-3">
+            <div className="space-y-4">
               {canvasState.header.columns.map((col, idx) => (
-                <div key={col.id} className="p-3 bg-muted/20 border rounded-lg space-y-2">
+                <div key={col.id} className="p-4 bg-muted/20 border rounded-lg space-y-4">
                   <div className="flex justify-between items-center">
                     <span className="text-[10px] font-bold uppercase text-muted-foreground">Column {idx + 1}</span>
                     <Button 
@@ -110,14 +110,29 @@ export function HeaderSettings() {
                       <Trash2 className="w-3.5 h-3.5" />
                     </Button>
                   </div>
-                  <div className="flex gap-4 items-center">
+
+                  <div className="space-y-2">
+                    <div className="flex justify-between">
+                      <Label className="text-[9px] uppercase">Width Weight</Label>
+                      <span className="text-[9px] font-mono">{Math.round(col.widthFraction * 100)}%</span>
+                    </div>
                     <Slider 
                       value={[col.widthFraction * 100]} 
                       min={1} max={100} step={1}
-                      onValueChange={(val) => updateColumnWidth(idx, val[0] / 100)}
-                      className="flex-1"
+                      onValueChange={(val) => updateColumnProperty(idx, 'widthFraction', val[0] / 100)}
                     />
-                    <span className="text-[10px] font-mono w-8 text-right">{Math.round(col.widthFraction * 100)}%</span>
+                  </div>
+
+                  <div className="space-y-2">
+                    <div className="flex justify-between">
+                      <Label className="text-[9px] uppercase">Radius</Label>
+                      <span className="text-[9px] font-mono">{col.borderRadius || 0}px</span>
+                    </div>
+                    <Slider 
+                      value={[col.borderRadius || 0]} 
+                      min={0} max={60} step={1}
+                      onValueChange={(val) => updateColumnProperty(idx, 'borderRadius', val[0])}
+                    />
                   </div>
                 </div>
               ))}

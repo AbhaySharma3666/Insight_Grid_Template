@@ -6,13 +6,17 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { Image as ImageIcon, Upload } from 'lucide-react';
+import { Layout, Palette, Image as ImageIcon, Upload } from 'lucide-react';
 
 export function CanvasSettings() {
   const { canvasState, setCanvasState } = useEditor();
 
   const handleRatioChange = (val: string) => {
     setCanvasState(prev => ({ ...prev, aspectRatio: val }));
+  };
+
+  const handleLayoutTypeChange = (val: string) => {
+    setCanvasState(prev => ({ ...prev, layoutType: val as any }));
   };
 
   const handleColorChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -35,6 +39,27 @@ export function CanvasSettings() {
 
   return (
     <div className="space-y-6 animate-fade-in">
+      <div className="space-y-3">
+        <Label className="flex items-center gap-2">
+          <Layout className="w-4 h-4" /> Layout Structure
+        </Label>
+        <Select value={canvasState.layoutType} onValueChange={handleLayoutTypeChange}>
+          <SelectTrigger>
+            <SelectValue placeholder="Select Layout Type" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="grid">Grid-based (Proportional)</SelectItem>
+            <SelectItem value="freeform">Freeform Look (Floating)</SelectItem>
+            <SelectItem value="autofit">Auto-Fit (Responsive Flow)</SelectItem>
+          </SelectContent>
+        </Select>
+        <p className="text-[10px] text-muted-foreground">
+          {canvasState.layoutType === 'grid' && "Standard structured grid using fractional weights."}
+          {canvasState.layoutType === 'freeform' && "Simulates a loose, high-modern floating box layout."}
+          {canvasState.layoutType === 'autofit' && "Boxes automatically adjust based on available space."}
+        </p>
+      </div>
+
       <div className="space-y-3">
         <Label>Canvas Ratio</Label>
         <Select value={canvasState.aspectRatio} onValueChange={handleRatioChange}>

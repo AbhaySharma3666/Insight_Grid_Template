@@ -12,7 +12,6 @@ export function CanvasArea() {
   const canvasElementRef = useRef<HTMLDivElement>(null);
   const [baseScale, setBaseScale] = useState(1);
 
-  // Responsive scaling to fit the canvas in the viewport
   useEffect(() => {
     const handleResize = () => {
       if (!containerRef.current || !canvasElementRef.current) return;
@@ -97,12 +96,13 @@ export function CanvasArea() {
                 <div 
                   key={col.id}
                   className={cn(
-                    "rounded-xl grid-item-shadow",
+                    "grid-item-shadow",
                     canvasState.header.hasShadow && "shadow-md",
                     canvasState.header.hasBorder && "border"
                   )}
                   style={{
                     width: `${col.widthFraction * 100}%`,
+                    borderRadius: `${col.borderRadius || 12}px`,
                     backgroundColor: 'rgba(255,255,255,0.9)',
                     borderColor: canvasState.mainGrid.borderColor || 'rgba(0,0,0,0.1)',
                   }}
@@ -122,10 +122,12 @@ export function CanvasArea() {
             {/* Side Panel */}
             {canvasState.sidePanel.position !== 'none' && (
               <div 
-                className="h-full shrink-0 relative overflow-hidden rounded-xl border border-black/5"
+                className="h-full shrink-0 relative overflow-hidden"
                 style={{ 
                   width: `${sidePanelWidth}px`,
                   backgroundColor: 'rgba(255,255,255,0.4)',
+                  borderRadius: '12px',
+                  border: '1px solid rgba(0,0,0,0.05)'
                 }}
               >
                 {canvasState.sidePanel.internalGrid && (
@@ -135,11 +137,12 @@ export function CanvasArea() {
                         <div 
                           key={`side-${rIdx}-${cIdx}`}
                           className={cn(
-                            "rounded-lg",
+                            "grid-item-shadow",
                             canvasState.sidePanel.internalGrid!.hasShadow && "shadow-sm",
                             canvasState.sidePanel.internalGrid!.hasBorder && "border"
                           )}
                           style={{
+                            borderRadius: `${col.borderRadius || 8}px`,
                             backgroundColor: 'rgba(255,255,255,0.8)',
                             borderColor: canvasState.sidePanel.internalGrid!.borderColor || 'rgba(0,0,0,0.1)',
                           }}
@@ -159,7 +162,10 @@ export function CanvasArea() {
               {canvasState.mainGrid.rows.map((row) => (
                 <div 
                   key={row.id} 
-                  className="flex flex-row"
+                  className={cn(
+                    "flex flex-row",
+                    canvasState.layoutType === 'freeform' && "relative"
+                  )}
                   style={{ 
                     height: `${row.heightFraction * 100}%`,
                     gap: `${canvasState.mainGrid.columnGap}px` 
@@ -169,14 +175,17 @@ export function CanvasArea() {
                     <div 
                       key={col.id}
                       className={cn(
-                        "rounded-xl grid-item-shadow",
+                        "grid-item-shadow",
                         canvasState.mainGrid.hasShadow && "shadow-md",
-                        canvasState.mainGrid.hasBorder && "border"
+                        canvasState.mainGrid.hasBorder && "border",
+                        canvasState.layoutType === 'freeform' && "transform scale-[0.98] opacity-90"
                       )}
                       style={{
                         width: `${col.widthFraction * 100}%`,
+                        borderRadius: `${col.borderRadius || 12}px`,
                         backgroundColor: 'rgba(255,255,255,0.7)',
                         borderColor: canvasState.mainGrid.borderColor || 'rgba(0,0,0,0.08)',
+                        transition: 'all 0.3s ease'
                       }}
                     />
                   ))}

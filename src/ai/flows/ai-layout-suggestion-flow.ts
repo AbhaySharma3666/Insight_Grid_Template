@@ -6,6 +6,11 @@
 import {ai} from '@/ai/genkit';
 import {z} from 'genkit';
 
+const ColumnSchema = z.object({
+  widthFraction: z.number(),
+  borderRadius: z.number().optional().describe('Border radius for the individual cell in pixels.'),
+});
+
 const AiLayoutSuggestionInputSchema = z.object({
   dashboardPurpose: z
     .string()
@@ -22,15 +27,16 @@ const AiLayoutSuggestionOutputSchema = z.object({
     aspectRatio: z.string(),
     backgroundColor: z.string(),
   }),
+  layoutType: z.enum(['grid', 'freeform', 'autofit']).optional().describe('The visual structure style.'),
   header: z.object({
     heightFraction: z.number().min(0).max(1),
-    columns: z.array(z.object({ widthFraction: z.number() })),
+    columns: z.array(ColumnSchema),
   }).optional().describe('Optional header row definition spanning the full top of the canvas.'),
   mainGrid: z.object({
     rows: z.array(
       z.object({
         heightFraction: z.number(),
-        columns: z.array(z.object({ widthFraction: z.number() })),
+        columns: z.array(ColumnSchema),
       })
     ),
     columnGap: z.number(),
@@ -44,7 +50,7 @@ const AiLayoutSuggestionOutputSchema = z.object({
     widthPercentage: z.number().optional(),
     panelGap: z.number().optional(),
     internalGrid: z.object({
-      columns: z.array(z.object({ widthFraction: z.number() })),
+      columns: z.array(ColumnSchema),
       rows: z.array(z.object({ heightFraction: z.number() })),
       columnGap: z.number(),
       rowGap: z.number(),
@@ -71,16 +77,30 @@ const prompt = ai.definePrompt({
   prompt: `You are an expert Power BI designer. Suggest a professional dashboard layout for: "{{{dashboardPurpose}}}".
   
 Layout Hierarchy:
-1. Canvas: Overall background and ratio.
+1. Canvas: Overall background, ratio, and layoutType ('grid', 'freeform', or 'autofit').
 2. Header: An optional row at the very top (full width).
 3. Body: A container below the header containing:
    a. Side Panel: Optional (left/right) for filters.
-   b. Main Grid: The primary content area containing one or more rows. Each row has its own column definition for complex "Bento" layouts.
+   b. Main Grid: The primary content area containing one or more rows. Each row has its own column definition.
 
-Ensure heightFractions for mainGrid.rows sum to approximately 1.0 (relative to the body area).
-Ensure widthFractions for columns within any row sum to 1.0.
+Styling:
+- Provide individual 'borderRadius' for columns to create a modern 'Bento' or card-based look.
+- Ensure heightFractions for mainGrid.rows sum to approximately 1.0.
+- Ensure widthFractions for columns within any row sum to 1.0.
 
-Return a JSON object matching the schema.`,
+Example structure:
+{
+  "canvas": { "aspectRatio": "16:9", "backgroundColor": "#F0F2F5" },
+  "layoutType": "grid",
+  "mainGrid": {
+    "rows": [
+      { "heightFraction": 0.3, "columns": [{ "widthFraction": 1.0, "borderRadius": 12 }] }
+    ],
+    "columnGap": 20, "rowGap": 20, "hasShadow": true, "hasBorder": false
+  },
+  "sidePanel": { "position": "left", "widthPercentage": 20 },
+  "description": "Clean executive summary..."
+}`,
 });
 
 const aiLayoutSuggestionFlow = ai.defineFlow(
