@@ -3,12 +3,14 @@
 import React, { useRef, useEffect, useState } from 'react';
 import { useEditor } from '@/hooks/use-editor-state';
 import { cn } from '@/lib/utils';
+import { Button } from '@/components/ui/button';
+import { Plus, Minus, RotateCcw } from 'lucide-react';
 
 export function CanvasArea() {
-  const { canvasState, setCanvasRef } = useEditor();
+  const { canvasState, setCanvasRef, zoom, setZoom } = useEditor();
   const containerRef = useRef<HTMLDivElement>(null);
   const canvasElementRef = useRef<HTMLDivElement>(null);
-  const [scale, setScale] = useState(1);
+  const [baseScale, setBaseScale] = useState(1);
 
   // Responsive scaling to fit the canvas in the viewport
   useEffect(() => {
@@ -28,7 +30,7 @@ export function CanvasArea() {
       const scaleH = containerHeight / baseHeight;
       const finalScale = Math.min(scaleW, scaleH, 1);
       
-      setScale(finalScale);
+      setBaseScale(finalScale);
     };
 
     handleResize();
@@ -41,6 +43,8 @@ export function CanvasArea() {
       setCanvasRef(canvasElementRef.current);
     }
   }, [setCanvasRef]);
+
+  const finalScale = baseScale * zoom;
 
   const aspectRatioParts = canvasState.aspectRatio.split(':').map(Number);
   const ratio = aspectRatioParts[0] / aspectRatioParts[1];
@@ -72,7 +76,7 @@ export function CanvasArea() {
   } : {};
 
   return (
-    <div ref={containerRef} className="flex-1 bg-background overflow-hidden flex items-center justify-center p-10 select-none">
+    <div ref={containerRef} className="flex-1 bg-background overflow-hidden flex items-center justify-center p-10 select-none relative">
       <div 
         ref={canvasElementRef}
         className="canvas-shadow relative overflow-hidden bg-white"
@@ -83,8 +87,8 @@ export function CanvasArea() {
           backgroundImage: canvasState.backgroundImage ? `url(${canvasState.backgroundImage})` : 'none',
           backgroundSize: 'cover',
           backgroundPosition: 'center',
-          transform: `scale(${scale})`,
-          transition: 'all 0.3s ease-out',
+          transform: `scale(${finalScale})`,
+          transition: 'transform 0.2s ease-out',
         }}
       >
         <div className={cn(
@@ -149,9 +153,38 @@ export function CanvasArea() {
         </div>
       </div>
       
-      {/* Zoom indicator */}
-      <div className="absolute bottom-6 right-6 bg-white/80 backdrop-blur-sm border px-3 py-1 rounded-full text-xs font-medium text-muted-foreground">
-        Preview Scale: {Math.round(scale * 100)}%
+      {/* Zoom indicator & Controls */}
+      <div className="absolute bottom-6 right-6 flex items-center gap-2 bg-white/80 backdrop-blur-sm border p-1 rounded-full shadow-sm z-30">
+        <Button 
+          variant="ghost" 
+          size="icon" 
+          className="h-8 w-8 rounded-full"
+          onClick={() => setZoom(prev => Math.max(0.1, prev - 0.1))}
+          title="Zoom Out"
+        >
+          <Minus className="w-4 h-4" />
+        </Button>
+        <div className="px-2 min-w-[60px] text-center text-xs font-bold text-muted-foreground border-x">
+          {Math.round(finalScale * 100)}%
+        </div>
+        <Button 
+          variant="ghost" 
+          size="icon" 
+          className="h-8 w-8 rounded-full"
+          onClick={() => setZoom(prev => Math.min(3, prev + 0.1))}
+          title="Zoom In"
+        >
+          <Plus className="w-4 h-4" />
+        </Button>
+        <Button 
+          variant="ghost" 
+          size="icon" 
+          className="h-8 w-8 rounded-full ml-1"
+          onClick={() => setZoom(1)}
+          title="Reset Zoom"
+        >
+          <RotateCcw className="w-3.5 h-3.5 text-accent" />
+        </Button>
       </div>
     </div>
   );

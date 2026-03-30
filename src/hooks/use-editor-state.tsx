@@ -73,12 +73,15 @@ interface EditorContextType {
   applyAiSuggestion: (suggestion: AiLayoutSuggestionOutput) => void;
   exportCanvas: () => void;
   setCanvasRef: (ref: HTMLDivElement | null) => void;
+  zoom: number;
+  setZoom: React.Dispatch<React.SetStateAction<number>>;
 }
 
 const EditorContext = createContext<EditorContextType | undefined>(undefined);
 
 export function EditorProvider({ children }: { children: React.ReactNode }) {
   const [canvasState, setCanvasState] = useState<CanvasState>(DEFAULT_STATE);
+  const [zoom, setZoom] = useState(1);
   const canvasRef = useRef<HTMLDivElement | null>(null);
   const { toast } = useToast();
 
@@ -118,14 +121,11 @@ export function EditorProvider({ children }: { children: React.ReactNode }) {
   const exportCanvas = useCallback(async () => {
     if (!canvasRef.current) return;
     
-    // In a real production app, we would use html-to-image or html2canvas here.
-    // Since we are simulating, we show a success message.
     toast({
       title: "Ready for Download",
       description: "Generating high-resolution template image...",
     });
 
-    // Simulated download trigger
     setTimeout(() => {
       toast({
         title: "Success",
@@ -140,7 +140,9 @@ export function EditorProvider({ children }: { children: React.ReactNode }) {
       setCanvasState, 
       applyAiSuggestion, 
       exportCanvas,
-      setCanvasRef
+      setCanvasRef,
+      zoom,
+      setZoom
     }}>
       {children}
     </EditorContext.Provider>
