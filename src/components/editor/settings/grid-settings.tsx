@@ -6,7 +6,8 @@ import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
 import { Switch } from '@/components/ui/switch';
 import { Slider } from '@/components/ui/slider';
-import { Trash2, Plus, GripVertical, Columns, PanelTop, LayoutGrid } from 'lucide-react';
+import { Input } from '@/components/ui/input';
+import { Trash2, Plus, GripVertical, Columns, PanelTop, LayoutGrid, Palette } from 'lucide-react';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { HeaderSettings } from './header-settings';
 
@@ -277,7 +278,7 @@ export function GridSettings() {
               ))}
             </Accordion>
 
-            <div className="space-y-6 pt-4 border-t">
+            <div className="space-y-6 pt-6 border-t">
               {!isFreeform && (
                 <>
                   <div className="space-y-3">
@@ -312,26 +313,53 @@ export function GridSettings() {
                 </>
               )}
 
-              <div className="flex items-center justify-between">
-                <Label className="text-xs">Grid Shadows</Label>
-                <Switch 
-                  checked={canvasState.mainGrid.hasShadow} 
-                  onCheckedChange={(val) => setCanvasState(prev => ({ 
-                    ...prev, 
-                    mainGrid: { ...prev.mainGrid, hasShadow: val } 
-                  }))}
-                />
-              </div>
+              <div className="space-y-4">
+                <Label className="text-xs font-bold uppercase text-muted-foreground flex items-center gap-2">
+                  <Palette className="w-3 h-3" /> Grid Styling
+                </Label>
+                
+                <div className="space-y-3 bg-muted/10 p-3 rounded-lg border border-dashed">
+                  <div className="flex items-center justify-between">
+                    <Label className="text-xs">Grid Shadows</Label>
+                    <Switch 
+                      checked={canvasState.mainGrid.hasShadow} 
+                      onCheckedChange={(val) => setCanvasState(prev => ({ 
+                        ...prev, 
+                        mainGrid: { ...prev.mainGrid, hasShadow: val } 
+                      }))}
+                    />
+                  </div>
 
-              <div className="flex items-center justify-between">
-                <Label className="text-xs">Grid Borders</Label>
-                <Switch 
-                  checked={canvasState.mainGrid.hasBorder} 
-                  onCheckedChange={(val) => setCanvasState(prev => ({ 
-                    ...prev, 
-                    mainGrid: { ...prev.mainGrid, hasBorder: val } 
-                  }))}
-                />
+                  <div className="space-y-3">
+                    <div className="flex items-center justify-between">
+                      <Label className="text-xs">Grid Borders</Label>
+                      <Switch 
+                        checked={canvasState.mainGrid.hasBorder} 
+                        onCheckedChange={(val) => setCanvasState(prev => ({ 
+                          ...prev, 
+                          mainGrid: { ...prev.mainGrid, hasBorder: val } 
+                        }))}
+                      />
+                    </div>
+                    
+                    {canvasState.mainGrid.hasBorder && (
+                      <div className="flex gap-2 items-center pl-4 animate-fade-in">
+                        <Input 
+                          type="color" 
+                          value={canvasState.mainGrid.borderColor || '#000000'} 
+                          onChange={(e) => setCanvasState(prev => ({ 
+                            ...prev, 
+                            mainGrid: { ...prev.mainGrid, borderColor: e.target.value } 
+                          }))}
+                          className="w-8 h-8 p-0 border-none cursor-pointer"
+                        />
+                        <span className="text-[10px] font-mono uppercase text-muted-foreground">
+                          {canvasState.mainGrid.borderColor || '#000000'}
+                        </span>
+                      </div>
+                    )}
+                  </div>
+                </div>
               </div>
             </div>
           </AccordionContent>

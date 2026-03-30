@@ -6,7 +6,8 @@ import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
 import { Slider } from '@/components/ui/slider';
 import { Button } from '@/components/ui/button';
-import { Plus, Trash2, Columns } from 'lucide-react';
+import { Input } from '@/components/ui/input';
+import { Plus, Trash2, Columns, Palette } from 'lucide-react';
 
 export function HeaderSettings() {
   const { canvasState, setCanvasState } = useEditor();
@@ -166,26 +167,52 @@ export function HeaderSettings() {
             </div>
           </div>
 
-          <div className="pt-4 border-t space-y-3">
-            <div className="flex items-center justify-between">
-              <Label className="text-xs">Show Shadows</Label>
-              <Switch 
-                checked={canvasState.header.hasShadow}
-                onCheckedChange={(val) => setCanvasState(prev => ({
-                  ...prev,
-                  header: { ...prev.header, hasShadow: val }
-                }))}
-              />
-            </div>
-            <div className="flex items-center justify-between">
-              <Label className="text-xs">Show Border</Label>
-              <Switch 
-                checked={canvasState.header.hasBorder}
-                onCheckedChange={(val) => setCanvasState(prev => ({
-                  ...prev,
-                  header: { ...prev.header, hasBorder: val }
-                }))}
-              />
+          <div className="pt-4 border-t space-y-4">
+            <Label className="text-xs font-bold uppercase text-muted-foreground flex items-center gap-2">
+              <Palette className="w-3 h-3" /> Header Styling
+            </Label>
+            
+            <div className="space-y-3 bg-muted/10 p-3 rounded-lg border border-dashed">
+              <div className="flex items-center justify-between">
+                <Label className="text-xs">Show Shadows</Label>
+                <Switch 
+                  checked={canvasState.header.hasShadow}
+                  onCheckedChange={(val) => setCanvasState(prev => ({
+                    ...prev,
+                    header: { ...prev.header, hasShadow: val }
+                  }))}
+                />
+              </div>
+              
+              <div className="space-y-3">
+                <div className="flex items-center justify-between">
+                  <Label className="text-xs">Show Border</Label>
+                  <Switch 
+                    checked={canvasState.header.hasBorder}
+                    onCheckedChange={(val) => setCanvasState(prev => ({
+                      ...prev,
+                      header: { ...prev.header, hasBorder: val }
+                    }))}
+                  />
+                </div>
+                
+                {canvasState.header.hasBorder && (
+                  <div className="flex gap-2 items-center pl-4 animate-fade-in">
+                    <Input 
+                      type="color" 
+                      value={canvasState.mainGrid.borderColor || '#000000'} 
+                      onChange={(e) => setCanvasState(prev => ({
+                        ...prev,
+                        mainGrid: { ...prev.mainGrid, borderColor: e.target.value }
+                      }))}
+                      className="w-8 h-8 p-0 border-none cursor-pointer"
+                    />
+                    <span className="text-[10px] font-mono uppercase text-muted-foreground">
+                      {canvasState.mainGrid.borderColor || '#000000'}
+                    </span>
+                  </div>
+                )}
+              </div>
             </div>
           </div>
         </>
