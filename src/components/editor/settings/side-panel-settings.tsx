@@ -7,7 +7,7 @@ import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Slider } from '@/components/ui/slider';
 import { Switch } from '@/components/ui/switch';
 import { Button } from '@/components/ui/button';
-import { Plus, Trash2 } from 'lucide-react';
+import { Plus, Trash2, GripVertical } from 'lucide-react';
 
 export function SidePanelSettings() {
   const { canvasState, setCanvasState } = useEditor();
@@ -37,18 +37,32 @@ export function SidePanelSettings() {
     });
   };
 
+  const updateSideColumnWidth = (index: number, val: number) => {
+    setCanvasState(prev => {
+      if (!prev.sidePanel.internalGrid) return prev;
+      const newCols = [...prev.sidePanel.internalGrid.columns];
+      newCols[index] = { widthFraction: val };
+      return {
+        ...prev,
+        sidePanel: {
+          ...prev.sidePanel,
+          internalGrid: { ...prev.sidePanel.internalGrid, columns: newCols }
+        }
+      };
+    });
+  };
+
   const removeSideColumn = (index: number) => {
     setCanvasState(prev => {
       if (!prev.sidePanel.internalGrid || prev.sidePanel.internalGrid.columns.length <= 1) return prev;
       const newCols = prev.sidePanel.internalGrid.columns.filter((_, i) => i !== index);
-      const total = newCols.length;
       return {
         ...prev,
         sidePanel: {
           ...prev.sidePanel,
           internalGrid: {
             ...prev.sidePanel.internalGrid,
-            columns: newCols.map(() => ({ widthFraction: 1 / total }))
+            columns: newCols
           }
         }
       };
@@ -80,18 +94,32 @@ export function SidePanelSettings() {
     });
   };
 
+  const updateSideRowHeight = (index: number, val: number) => {
+    setCanvasState(prev => {
+      if (!prev.sidePanel.internalGrid) return prev;
+      const newRows = [...prev.sidePanel.internalGrid.rows];
+      newRows[index] = { heightFraction: val };
+      return {
+        ...prev,
+        sidePanel: {
+          ...prev.sidePanel,
+          internalGrid: { ...prev.sidePanel.internalGrid, rows: newRows }
+        }
+      };
+    });
+  };
+
   const removeSideRow = (index: number) => {
     setCanvasState(prev => {
       if (!prev.sidePanel.internalGrid || prev.sidePanel.internalGrid.rows.length <= 1) return prev;
       const newRows = prev.sidePanel.internalGrid.rows.filter((_, i) => i !== index);
-      const total = newRows.length;
       return {
         ...prev,
         sidePanel: {
           ...prev.sidePanel,
           internalGrid: {
             ...prev.sidePanel.internalGrid,
-            rows: newRows.map(() => ({ heightFraction: 1 / total }))
+            rows: newRows
           }
         }
       };
@@ -144,7 +172,7 @@ export function SidePanelSettings() {
         <>
           <div className="space-y-3">
             <div className="flex justify-between">
-              <Label>Panel Width</Label>
+              <Label>Panel Total Width</Label>
               <span className="text-xs text-muted-foreground">{canvasState.sidePanel.widthPercentage}%</span>
             </div>
             <Slider 
@@ -161,7 +189,7 @@ export function SidePanelSettings() {
 
           <div className="space-y-4 pt-4 border-t">
             <div className="flex items-center justify-between">
-              <Label className="text-sm font-semibold">Internal Grid</Label>
+              <Label className="text-sm font-semibold">Internal Grid Configuration</Label>
               <Switch 
                 checked={!!canvasState.sidePanel.internalGrid} 
                 onCheckedChange={(val) => setCanvasState(prev => ({ 
@@ -183,49 +211,53 @@ export function SidePanelSettings() {
 
             {canvasState.sidePanel.internalGrid && (
               <div className="space-y-6 pt-2">
-                <div className="space-y-3">
+                <div className="space-y-4">
                   <div className="flex items-center justify-between">
-                    <Label className="text-xs font-medium text-muted-foreground">Columns</Label>
+                    <Label className="text-xs font-bold uppercase text-muted-foreground">Internal Columns</Label>
                     <Button variant="outline" size="sm" className="h-6 px-2 text-[10px] gap-1" onClick={addSideColumn}>
                       <Plus className="w-3 h-3" /> Add
                     </Button>
                   </div>
-                  <div className="flex gap-2 flex-wrap">
-                    {canvasState.sidePanel.internalGrid.columns.map((_, idx) => (
-                      <div key={idx} className="flex items-center gap-1 bg-muted rounded px-2 py-0.5 shrink-0 border">
-                        <span className="text-[10px] font-mono text-muted-foreground">C{idx + 1}</span>
-                        <Button 
-                          variant="ghost" 
-                          size="icon" 
-                          className="h-3 w-3 hover:text-destructive" 
-                          onClick={() => removeSideColumn(idx)}
-                        >
-                          <Trash2 className="w-2.5 h-2.5" />
-                        </Button>
+                  <div className="space-y-3">
+                    {canvasState.sidePanel.internalGrid.columns.map((col, idx) => (
+                      <div key={`side-col-${idx}`} className="space-y-2 bg-muted/20 p-2 rounded-md border border-dashed">
+                        <div className="flex items-center justify-between">
+                          <span className="text-[9px] font-mono">Col {idx + 1}</span>
+                          <Button variant="ghost" size="icon" className="h-4 w-4 text-destructive" onClick={() => removeSideColumn(idx)}>
+                            <Trash2 className="w-3 h-3" />
+                          </Button>
+                        </div>
+                        <Slider 
+                          value={[col.widthFraction * 100]} 
+                          min={1} max={100} step={1}
+                          onValueChange={(val) => updateSideColumnWidth(idx, val[0] / 100)}
+                        />
                       </div>
                     ))}
                   </div>
                 </div>
 
-                <div className="space-y-3">
+                <div className="space-y-4">
                   <div className="flex items-center justify-between">
-                    <Label className="text-xs font-medium text-muted-foreground">Rows</Label>
+                    <Label className="text-xs font-bold uppercase text-muted-foreground">Internal Rows</Label>
                     <Button variant="outline" size="sm" className="h-6 px-2 text-[10px] gap-1" onClick={addSideRow}>
                       <Plus className="w-3 h-3" /> Add
                     </Button>
                   </div>
-                  <div className="flex gap-2 flex-wrap">
-                    {canvasState.sidePanel.internalGrid.rows.map((_, idx) => (
-                      <div key={idx} className="flex items-center gap-1 bg-muted rounded px-2 py-0.5 shrink-0 border">
-                        <span className="text-[10px] font-mono text-muted-foreground">R{idx + 1}</span>
-                        <Button 
-                          variant="ghost" 
-                          size="icon" 
-                          className="h-3 w-3 hover:text-destructive" 
-                          onClick={() => removeSideRow(idx)}
-                        >
-                          <Trash2 className="w-2.5 h-2.5" />
-                        </Button>
+                  <div className="space-y-3">
+                    {canvasState.sidePanel.internalGrid.rows.map((row, idx) => (
+                      <div key={`side-row-${idx}`} className="space-y-2 bg-muted/20 p-2 rounded-md border border-dashed">
+                        <div className="flex items-center justify-between">
+                          <span className="text-[9px] font-mono">Row {idx + 1}</span>
+                          <Button variant="ghost" size="icon" className="h-4 w-4 text-destructive" onClick={() => removeSideRow(idx)}>
+                            <Trash2 className="w-3 h-3" />
+                          </Button>
+                        </div>
+                        <Slider 
+                          value={[row.heightFraction * 100]} 
+                          min={1} max={100} step={1}
+                          onValueChange={(val) => updateSideRowHeight(idx, val[0] / 100)}
+                        />
                       </div>
                     ))}
                   </div>
@@ -233,7 +265,7 @@ export function SidePanelSettings() {
 
                 <div className="space-y-3 pt-2">
                   <div className="flex items-center justify-between">
-                    <Label className="text-xs">Shadows</Label>
+                    <Label className="text-xs">Grid Shadows</Label>
                     <Switch 
                       checked={canvasState.sidePanel.internalGrid.hasShadow} 
                       onCheckedChange={(val) => setCanvasState(prev => ({ 
@@ -246,7 +278,7 @@ export function SidePanelSettings() {
                     />
                   </div>
                   <div className="flex items-center justify-between">
-                    <Label className="text-xs">Borders</Label>
+                    <Label className="text-xs">Grid Borders</Label>
                     <Switch 
                       checked={canvasState.sidePanel.internalGrid.hasBorder} 
                       onCheckedChange={(val) => setCanvasState(prev => ({ 
