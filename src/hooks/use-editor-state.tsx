@@ -3,6 +3,7 @@
 import React, { createContext, useContext, useState, useCallback, useRef } from 'react';
 import { AiLayoutSuggestionOutput } from '@/ai/flows/ai-layout-suggestion-flow';
 import { useToast } from '@/hooks/use-toast';
+import { toPng } from 'html-to-image';
 
 export interface ColumnDefinition {
   id: string;
@@ -159,7 +160,7 @@ export function EditorProvider({ children }: { children: React.ReactNode }) {
         ...prev.header,
         enabled: !!suggestion.header,
         heightFraction: suggestion.header?.heightFraction || 0.12,
-        columnGap: prev.header.columnGap, // AI doesn't currently suggest this, keep existing
+        columnGap: prev.header.columnGap,
         columns: suggestion.header?.columns.map((col, idx) => ({
           id: `h-col-${idx}-${Date.now()}`,
           widthFraction: col.widthFraction,
@@ -177,7 +178,6 @@ export function EditorProvider({ children }: { children: React.ReactNode }) {
             widthFraction: col.widthFraction,
             borderRadius: (col as any).borderRadius || 12,
             opacity: 1,
-            // Basic mapping for freeform if needed
             x: cIdx * (100 / row.columns.length),
             y: rIdx * (100 / suggestion.mainGrid.rows.length),
             w: 100 / row.columns.length - 2,
@@ -217,16 +217,40 @@ export function EditorProvider({ children }: { children: React.ReactNode }) {
     if (!canvasRef.current) return;
     
     toast({
-      title: "Ready for Download",
-      description: "Generating high-resolution template image...",
+      title: "Generating Download",
+      description: "Processing high-resolution image...",
     });
 
-    setTimeout(() => {
+    try {
+      // Temporarily remove transform for clean capture
+      const originalTransform = canvasRef.current.style.transform;
+      canvasRef.current.style.transform = 'none';
+      
+      const dataUrl = await toPng(canvasRef.current, {
+        pixelRatio: 2,
+        cacheBust: true,
+      });
+      
+      // Restore transform
+      canvasRef.current.style.transform = originalTransform;
+
+      const link = document.createElement('a');
+      link.download = `power-bi-background-${Date.now()}.png`;
+      link.href = dataUrl;
+      link.click();
+
       toast({
         title: "Success",
-        description: "Your Power BI background has been downloaded.",
+        description: "Your template has been downloaded.",
       });
-    }, 1500);
+    } catch (err) {
+      console.error('Export failed', err);
+      toast({
+        title: "Export Failed",
+        description: "Could not generate the image. Please try again.",
+        variant: "destructive"
+      });
+    }
   }, [toast]);
 
   return (
