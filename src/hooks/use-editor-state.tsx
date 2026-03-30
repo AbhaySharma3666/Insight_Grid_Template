@@ -4,11 +4,22 @@ import React, { createContext, useContext, useState, useCallback, useRef } from 
 import { AiLayoutSuggestionOutput } from '@/ai/flows/ai-layout-suggestion-flow';
 import { useToast } from '@/hooks/use-toast';
 
-interface GridDefinition {
+interface ColumnDefinition {
+  id: string;
   widthFraction: number;
 }
 
 interface RowDefinition {
+  id: string;
+  heightFraction: number;
+  columns: ColumnDefinition[];
+}
+
+interface SimpleGridDef {
+  widthFraction: number;
+}
+
+interface SimpleRowDef {
   heightFraction: number;
 }
 
@@ -17,7 +28,6 @@ interface CanvasState {
   backgroundColor: string;
   backgroundImage: string | null;
   mainGrid: {
-    columns: GridDefinition[];
     rows: RowDefinition[];
     columnGap: number;
     rowGap: number;
@@ -28,9 +38,10 @@ interface CanvasState {
   sidePanel: {
     position: 'left' | 'right' | 'none';
     widthPercentage: number;
+    panelGap: number;
     internalGrid?: {
-      columns: GridDefinition[];
-      rows: RowDefinition[];
+      columns: { widthFraction: number }[];
+      rows: { heightFraction: number }[];
       columnGap: number;
       rowGap: number;
       hasShadow: boolean;
@@ -45,8 +56,26 @@ const DEFAULT_STATE: CanvasState = {
   backgroundColor: '#ECF0F7',
   backgroundImage: null,
   mainGrid: {
-    columns: [{ widthFraction: 1 }],
-    rows: [{ heightFraction: 0.2 }, { heightFraction: 0.8 }],
+    rows: [
+      {
+        id: 'r1',
+        heightFraction: 0.2,
+        columns: [
+          { id: 'r1c1', widthFraction: 0.25 },
+          { id: 'r1c2', widthFraction: 0.25 },
+          { id: 'r1c3', widthFraction: 0.25 },
+          { id: 'r1c4', widthFraction: 0.25 },
+        ]
+      },
+      {
+        id: 'r2',
+        heightFraction: 0.8,
+        columns: [
+          { id: 'r2c1', widthFraction: 0.6 },
+          { id: 'r2c2', widthFraction: 0.4 },
+        ]
+      }
+    ],
     columnGap: 20,
     rowGap: 20,
     hasShadow: true,
@@ -56,6 +85,7 @@ const DEFAULT_STATE: CanvasState = {
   sidePanel: {
     position: 'left',
     widthPercentage: 20,
+    panelGap: 20,
     internalGrid: {
       columns: [{ widthFraction: 1 }],
       rows: Array(5).fill(null).map(() => ({ heightFraction: 0.2 })),
@@ -96,8 +126,14 @@ export function EditorProvider({ children }: { children: React.ReactNode }) {
       backgroundColor: suggestion.canvas.backgroundColor,
       mainGrid: {
         ...prev.mainGrid,
-        columns: suggestion.mainGrid.columns,
-        rows: suggestion.mainGrid.rows,
+        rows: suggestion.mainGrid.rows.map((row, rIdx) => ({
+          id: `row-${rIdx}-${Date.now()}`,
+          heightFraction: row.heightFraction,
+          columns: row.columns.map((col, cIdx) => ({
+            id: `col-${rIdx}-${cIdx}-${Date.now()}`,
+            widthFraction: col.widthFraction,
+          }))
+        })),
         columnGap: suggestion.mainGrid.columnGap,
         rowGap: suggestion.mainGrid.rowGap,
         hasShadow: suggestion.mainGrid.hasShadow,
@@ -108,6 +144,7 @@ export function EditorProvider({ children }: { children: React.ReactNode }) {
         ...prev.sidePanel,
         position: suggestion.sidePanel.position,
         widthPercentage: suggestion.sidePanel.widthPercentage || 20,
+        panelGap: suggestion.sidePanel.panelGap || 20,
         internalGrid: suggestion.sidePanel.internalGrid,
       },
     }));

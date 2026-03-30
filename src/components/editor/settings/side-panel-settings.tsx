@@ -172,17 +172,30 @@ export function SidePanelSettings() {
         <>
           <div className="space-y-3">
             <div className="flex justify-between">
-              <Label>Panel Total Width</Label>
+              <Label>Panel Width</Label>
               <span className="text-xs text-muted-foreground">{canvasState.sidePanel.widthPercentage}%</span>
             </div>
             <Slider 
               value={[canvasState.sidePanel.widthPercentage]} 
-              min={10} 
-              max={40} 
-              step={1}
+              min={10} max={40} step={1}
               onValueChange={(val) => setCanvasState(prev => ({ 
                 ...prev, 
                 sidePanel: { ...prev.sidePanel, widthPercentage: val[0] } 
+              }))}
+            />
+          </div>
+
+          <div className="space-y-3">
+            <div className="flex justify-between">
+              <Label>Gap to Main Grid</Label>
+              <span className="text-xs text-muted-foreground">{canvasState.sidePanel.panelGap}px</span>
+            </div>
+            <Slider 
+              value={[canvasState.sidePanel.panelGap]} 
+              min={0} max={60} step={2}
+              onValueChange={(val) => setCanvasState(prev => ({ 
+                ...prev, 
+                sidePanel: { ...prev.sidePanel, panelGap: val[0] } 
               }))}
             />
           </div>

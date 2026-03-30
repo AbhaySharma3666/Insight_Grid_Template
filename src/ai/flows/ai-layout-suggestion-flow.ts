@@ -39,19 +39,6 @@ const AiLayoutSuggestionOutputSchema = z.object({
     .describe('Overall canvas properties.'),
   mainGrid: z
     .object({
-      columns: z
-        .array(
-          z.object({
-            widthFraction: z
-              .number()
-              .min(0)
-              .max(1)
-              .describe(
-                'The fractional width of the column, sums to 1 for all columns.'
-              ),
-          })
-        )
-        .describe('Array of main grid column definitions.'),
       rows: z
         .array(
           z.object({
@@ -59,12 +46,21 @@ const AiLayoutSuggestionOutputSchema = z.object({
               .number()
               .min(0)
               .max(1)
-              .describe(
-                'The fractional height of the row, sums to 1 for all rows.'
-              ),
+              .describe('Fractional height of this row.'),
+            columns: z
+              .array(
+                z.object({
+                  widthFraction: z
+                    .number()
+                    .min(0)
+                    .max(1)
+                    .describe('Fractional width of this column within this specific row.'),
+                })
+              )
+              .describe('Array of columns for this specific row. Sum of widthFractions must be 1.'),
           })
         )
-        .describe('Array of main grid row definitions.'),
+        .describe('Array of main grid row definitions. Sum of heightFractions must be 1.'),
       columnGap: z
         .number()
         .min(0)
@@ -97,6 +93,10 @@ const AiLayoutSuggestionOutputSchema = z.object({
         .describe(
           'Width of the side panel as a percentage of total canvas width, if present.'
         ),
+      panelGap: z
+        .number()
+        .optional()
+        .describe('Gap between the side panel and the main grid in pixels.'),
       internalGrid: z
         .object({
           columns: z
@@ -107,7 +107,7 @@ const AiLayoutSuggestionOutputSchema = z.object({
                   .min(0)
                   .max(1)
                   .describe(
-                    'The fractional width of the column within the side panel, sums to 1 for all columns.'
+                    'The fractional width of the column within the side panel.'
                   ),
               })
             )
@@ -120,7 +120,7 @@ const AiLayoutSuggestionOutputSchema = z.object({
                   .min(0)
                   .max(1)
                   .describe(
-                    'The fractional height of the row within the side panel, sums to 1 for all rows.'
+                    'The fractional height of the row within the side panel.'
                   ),
               })
             )
@@ -170,23 +170,28 @@ const prompt = ai.definePrompt({
   name: 'aiLayoutSuggestionPrompt',
   input: {schema: AiLayoutSuggestionInputSchema},
   output: {schema: AiLayoutSuggestionOutputSchema},
-  prompt: `You are an expert Power BI dashboard layout designer. Your task is to suggest an optimal grid and panel layout structure for a Power BI dashboard based on its purpose.
-Consider the following dashboard purpose: "{{{dashboardPurpose}}}".
+  prompt: `You are an expert Power BI dashboard layout designer. Suggest an optimal layout for: "{{{dashboardPurpose}}}".
 
-Provide a detailed JSON output according to the specified schema.
+Important: Use a nested row and column structure for the main grid. Each row can have its own unique set of columns.
 
-When defining column and row widthFraction or heightFraction arrays, make sure their values sum to 1.
-
-Example of expected output structure for a dashboard with a side panel:
+Example Structure:
 {
-  "canvas": {
-    "aspectRatio": "16:9",
-    "backgroundColor": "#F0F2F5",
-    "hasBackgroundImage": false
-  },
+  "canvas": { "aspectRatio": "16:9", "backgroundColor": "#F0F2F5", "hasBackgroundImage": false },
   "mainGrid": {
-    "columns": [{"widthFraction": 0.5}, {"widthFraction": 0.5}],
-    "rows": [{"heightFraction": 0.2}, {"heightFraction": 0.8}],
+    "rows": [
+      {
+        "heightFraction": 0.2,
+        "columns": [
+          { "widthFraction": 0.25 }, { "widthFraction": 0.25 }, { "widthFraction": 0.25 }, { "widthFraction": 0.25 }
+        ]
+      },
+      {
+        "heightFraction": 0.8,
+        "columns": [
+          { "widthFraction": 0.7 }, { "widthFraction": 0.3 }
+        ]
+      }
+    ],
     "columnGap": 20,
     "rowGap": 20,
     "hasShadow": true,
@@ -195,16 +200,9 @@ Example of expected output structure for a dashboard with a side panel:
   "sidePanel": {
     "position": "left",
     "widthPercentage": 20,
-    "internalGrid": {
-      "columns": [{"widthFraction": 1.0}],
-      "rows": [{"heightFraction": 0.2}, {"heightFraction": 0.2}, {"heightFraction": 0.2}, {"heightFraction": 0.2}, {"heightFraction": 0.2}],
-      "columnGap": 10,
-      "rowGap": 10,
-      "hasShadow": false,
-      "hasBorder": true
-    }
+    "panelGap": 24
   },
-  "description": "This layout provides a clear overview..."
+  "description": "Layout with top KPI row and a large left visual area."
 }`,
 });
 

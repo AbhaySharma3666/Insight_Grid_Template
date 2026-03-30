@@ -51,17 +51,6 @@ export function CanvasArea() {
   const canvasWidth = 1280;
   const canvasHeight = canvasWidth / ratio;
 
-  // Grid styling
-  const mainGridStyle = {
-    display: 'grid',
-    gridTemplateColumns: canvasState.mainGrid.columns.map(c => `${c.widthFraction}fr`).join(' '),
-    gridTemplateRows: canvasState.mainGrid.rows.map(r => `${r.heightFraction}fr`).join(' '),
-    gap: `${canvasState.mainGrid.columnGap}px ${canvasState.mainGrid.rowGap}px`,
-    width: '100%',
-    height: '100%',
-    padding: '24px',
-  };
-
   const sidePanelWidth = canvasState.sidePanel.position !== 'none' 
     ? (canvasWidth * (canvasState.sidePanel.widthPercentage || 20)) / 100 
     : 0;
@@ -70,7 +59,7 @@ export function CanvasArea() {
     display: 'grid',
     gridTemplateColumns: canvasState.sidePanel.internalGrid.columns.map(c => `${c.widthFraction}fr`).join(' '),
     gridTemplateRows: canvasState.sidePanel.internalGrid.rows.map(r => `${r.heightFraction}fr`).join(' '),
-    gap: `${canvasState.sidePanel.internalGrid.columnGap}px ${canvasState.sidePanel.internalGrid.rowGap}px`,
+    gap: `${canvasState.sidePanel.internalGrid.rowGap}px ${canvasState.sidePanel.internalGrid.columnGap}px`,
     padding: '16px',
     height: '100%',
   } : {};
@@ -91,19 +80,20 @@ export function CanvasArea() {
           transition: 'transform 0.2s ease-out',
         }}
       >
-        <div className={cn(
-          "flex w-full h-full",
-          canvasState.sidePanel.position === 'right' && "flex-row-reverse"
-        )}>
+        <div 
+          className={cn(
+            "flex w-full h-full p-6",
+            canvasState.sidePanel.position === 'right' && "flex-row-reverse"
+          )}
+          style={{ gap: `${canvasState.sidePanel.panelGap}px` }}
+        >
           {/* Side Panel */}
           {canvasState.sidePanel.position !== 'none' && (
             <div 
-              className="h-full shrink-0 relative overflow-hidden"
+              className="h-full shrink-0 relative overflow-hidden rounded-xl border border-black/5"
               style={{ 
                 width: `${sidePanelWidth}px`,
-                backgroundColor: 'rgba(0,0,0,0.02)',
-                borderRight: canvasState.sidePanel.position === 'left' ? '1px solid rgba(0,0,0,0.05)' : 'none',
-                borderLeft: canvasState.sidePanel.position === 'right' ? '1px solid rgba(0,0,0,0.05)' : 'none',
+                backgroundColor: 'rgba(255,255,255,0.4)',
               }}
             >
               {canvasState.sidePanel.internalGrid && (
@@ -113,12 +103,12 @@ export function CanvasArea() {
                       <div 
                         key={`side-${rIdx}-${cIdx}`}
                         className={cn(
-                          "rounded-md",
+                          "rounded-lg",
                           canvasState.sidePanel.internalGrid!.hasShadow && "shadow-sm",
                           canvasState.sidePanel.internalGrid!.hasBorder && "border"
                         )}
                         style={{
-                          backgroundColor: 'rgba(255,255,255,0.6)',
+                          backgroundColor: 'rgba(255,255,255,0.8)',
                           borderColor: canvasState.sidePanel.internalGrid!.borderColor || 'rgba(0,0,0,0.1)',
                         }}
                       />
@@ -129,31 +119,42 @@ export function CanvasArea() {
             </div>
           )}
 
-          {/* Main Content Area */}
-          <div className="flex-1 h-full relative overflow-hidden">
-            <div style={mainGridStyle}>
-              {canvasState.mainGrid.rows.map((row, rIdx) => (
-                canvasState.mainGrid.columns.map((col, cIdx) => (
+          {/* Main Content Area - Flexible Rows and Columns */}
+          <div 
+            className="flex-1 h-full flex flex-col"
+            style={{ gap: `${canvasState.mainGrid.rowGap}px` }}
+          >
+            {canvasState.mainGrid.rows.map((row, rIdx) => (
+              <div 
+                key={row.id} 
+                className="flex flex-row"
+                style={{ 
+                  height: `${row.heightFraction * 100}%`,
+                  gap: `${canvasState.mainGrid.columnGap}px` 
+                }}
+              >
+                {row.columns.map((col, cIdx) => (
                   <div 
-                    key={`main-${rIdx}-${cIdx}`}
+                    key={col.id}
                     className={cn(
-                      "rounded-lg grid-item-shadow",
+                      "rounded-xl grid-item-shadow",
                       canvasState.mainGrid.hasShadow && "shadow-md",
                       canvasState.mainGrid.hasBorder && "border"
                     )}
                     style={{
+                      width: `${col.widthFraction * 100}%`,
                       backgroundColor: 'rgba(255,255,255,0.7)',
                       borderColor: canvasState.mainGrid.borderColor || 'rgba(0,0,0,0.08)',
                     }}
                   />
-                ))
-              ))}
-            </div>
+                ))}
+              </div>
+            ))}
           </div>
         </div>
       </div>
       
-      {/* Zoom indicator & Controls */}
+      {/* Zoom Controls */}
       <div className="absolute bottom-6 right-6 flex items-center gap-2 bg-white/80 backdrop-blur-sm border p-1 rounded-full shadow-sm z-30">
         <Button 
           variant="ghost" 
