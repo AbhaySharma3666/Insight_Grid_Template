@@ -1,4 +1,3 @@
-
 "use client";
 
 import React, { useRef, useEffect, useState, useCallback } from 'react';
@@ -140,7 +139,8 @@ export function CanvasArea() {
               className="flex flex-row shrink-0"
               style={{ 
                 height: `${canvasState.header.heightFraction * 100}%`,
-                gap: `${canvasState.header.columnGap}px` 
+                gap: `${canvasState.header.columnGap}px`,
+                padding: `${canvasState.header.padding}px`
               }}
             >
               {canvasState.header.columns.map((col) => (
@@ -178,6 +178,7 @@ export function CanvasArea() {
                 className="h-full shrink-0 relative overflow-hidden"
                 style={{ 
                   width: `${sidePanelWidth}px`,
+                  padding: `${canvasState.sidePanel.padding}px`,
                   backgroundColor: canvasState.sidePanel.internalGrid 
                     ? 'transparent' 
                     : (canvasState.sidePanel.colorMode === 'section' 
@@ -230,7 +231,10 @@ export function CanvasArea() {
                 "flex-1 h-full flex flex-col relative",
                 canvasState.layoutType === 'freeform' ? "block" : "flex"
               )}
-              style={{ gap: canvasState.layoutType === 'freeform' ? '0' : `${canvasState.mainGrid.rowGap}px` }}
+              style={{ 
+                gap: canvasState.layoutType === 'freeform' ? '0' : `${canvasState.mainGrid.rowGap}px`,
+                padding: `${canvasState.mainGrid.padding}px`
+              }}
             >
               {canvasState.mainGrid.rows.map((row, rIdx) => (
                 <div 

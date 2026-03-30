@@ -1,4 +1,3 @@
-
 "use client";
 
 import React from 'react';
@@ -8,7 +7,7 @@ import { Switch } from '@/components/ui/switch';
 import { Slider } from '@/components/ui/slider';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Plus, Trash2, Columns, Palette } from 'lucide-react';
+import { Plus, Trash2, Columns, Palette, Maximize } from 'lucide-react';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
 export function HeaderSettings() {
@@ -114,34 +113,51 @@ export function HeaderSettings() {
             )}
           </div>
 
-          <div className="space-y-4 pt-2">
-            <div className="flex justify-between">
-              <Label>Header Height Weight</Label>
-              <span className="text-xs font-mono">{Math.round(canvasState.header.heightFraction * 100)}%</span>
+          <div className="space-y-6 pt-4">
+             <div className="space-y-3">
+              <div className="flex justify-between items-center">
+                <Label className="text-xs flex items-center gap-2"><Maximize className="w-3 h-3"/> Internal Padding</Label>
+                <span className="text-xs font-mono">{canvasState.header.padding}px</span>
+              </div>
+              <Slider 
+                value={[canvasState.header.padding]} 
+                min={0} max={60} step={2}
+                onValueChange={(val) => setCanvasState(prev => ({
+                  ...prev,
+                  header: { ...prev.header, padding: val[0] }
+                }))}
+              />
             </div>
-            <Slider 
-              value={[canvasState.header.heightFraction * 100]} 
-              min={5} max={30} step={1}
-              onValueChange={(val) => setCanvasState(prev => ({
-                ...prev,
-                header: { ...prev.header, heightFraction: val[0] / 100 }
-              }))}
-            />
-          </div>
 
-          <div className="space-y-4 pt-2">
-            <div className="flex justify-between">
-              <Label>Header Column Gap</Label>
-              <span className="text-xs font-mono">{canvasState.header.columnGap}px</span>
+            <div className="space-y-3">
+              <div className="flex justify-between items-center">
+                <Label className="text-xs">Height Weight</Label>
+                <span className="text-xs font-mono">{Math.round(canvasState.header.heightFraction * 100)}%</span>
+              </div>
+              <Slider 
+                value={[canvasState.header.heightFraction * 100]} 
+                min={5} max={30} step={1}
+                onValueChange={(val) => setCanvasState(prev => ({
+                  ...prev,
+                  header: { ...prev.header, heightFraction: val[0] / 100 }
+                }))}
+              />
             </div>
-            <Slider 
-              value={[canvasState.header.columnGap]} 
-              min={0} max={60} step={2}
-              onValueChange={(val) => setCanvasState(prev => ({
-                ...prev,
-                header: { ...prev.header, columnGap: val[0] }
-              }))}
-            />
+
+            <div className="space-y-3">
+              <div className="flex justify-between items-center">
+                <Label className="text-xs">Column Gap</Label>
+                <span className="text-xs font-mono">{canvasState.header.columnGap}px</span>
+              </div>
+              <Slider 
+                value={[canvasState.header.columnGap]} 
+                min={0} max={60} step={2}
+                onValueChange={(val) => setCanvasState(prev => ({
+                  ...prev,
+                  header: { ...prev.header, columnGap: val[0] }
+                }))}
+              />
+            </div>
           </div>
 
           <div className="pt-4 space-y-4">

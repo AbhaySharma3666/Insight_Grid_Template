@@ -1,4 +1,3 @@
-
 "use client";
 
 import React from 'react';
@@ -9,7 +8,7 @@ import { Slider } from '@/components/ui/slider';
 import { Switch } from '@/components/ui/switch';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Plus, Trash2, Palette } from 'lucide-react';
+import { Plus, Trash2, Palette, Maximize } from 'lucide-react';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
 export function SidePanelSettings() {
@@ -215,34 +214,51 @@ export function SidePanelSettings() {
             )}
           </div>
 
-          <div className="space-y-3">
-            <div className="flex justify-between">
-              <Label>Panel Width</Label>
-              <span className="text-xs text-muted-foreground">{canvasState.sidePanel.widthPercentage}%</span>
+          <div className="space-y-6">
+            <div className="space-y-3">
+              <div className="flex justify-between items-center">
+                <Label className="text-xs flex items-center gap-2"><Maximize className="w-3 h-3"/> Internal Padding</Label>
+                <span className="text-xs font-mono">{canvasState.sidePanel.padding}px</span>
+              </div>
+              <Slider 
+                value={[canvasState.sidePanel.padding]} 
+                min={0} max={60} step={2}
+                onValueChange={(val) => setCanvasState(prev => ({ 
+                  ...prev, 
+                  sidePanel: { ...prev.sidePanel, padding: val[0] } 
+                }))}
+              />
             </div>
-            <Slider 
-              value={[canvasState.sidePanel.widthPercentage]} 
-              min={10} max={40} step={1}
-              onValueChange={(val) => setCanvasState(prev => ({ 
-                ...prev, 
-                sidePanel: { ...prev.sidePanel, widthPercentage: val[0] } 
-              }))}
-            />
-          </div>
 
-          <div className="space-y-3">
-            <div className="flex justify-between">
-              <Label>Gap to Main Grid</Label>
-              <span className="text-xs text-muted-foreground">{canvasState.sidePanel.panelGap}px</span>
+            <div className="space-y-3">
+              <div className="flex justify-between">
+                <Label>Panel Width</Label>
+                <span className="text-xs text-muted-foreground">{canvasState.sidePanel.widthPercentage}%</span>
+              </div>
+              <Slider 
+                value={[canvasState.sidePanel.widthPercentage]} 
+                min={10} max={40} step={1}
+                onValueChange={(val) => setCanvasState(prev => ({ 
+                  ...prev, 
+                  sidePanel: { ...prev.sidePanel, widthPercentage: val[0] } 
+                }))}
+              />
             </div>
-            <Slider 
-              value={[canvasState.sidePanel.panelGap]} 
-              min={0} max={60} step={2}
-              onValueChange={(val) => setCanvasState(prev => ({ 
-                ...prev, 
-                sidePanel: { ...prev.sidePanel, panelGap: val[0] } 
-              }))}
-            />
+
+            <div className="space-y-3">
+              <div className="flex justify-between">
+                <Label>Gap to Main Grid</Label>
+                <span className="text-xs text-muted-foreground">{canvasState.sidePanel.panelGap}px</span>
+              </div>
+              <Slider 
+                value={[canvasState.sidePanel.panelGap]} 
+                min={0} max={60} step={2}
+                onValueChange={(val) => setCanvasState(prev => ({ 
+                  ...prev, 
+                  sidePanel: { ...prev.sidePanel, panelGap: val[0] } 
+                }))}
+              />
+            </div>
           </div>
 
           {canvasState.sidePanel.colorMode === 'individual' && !canvasState.sidePanel.internalGrid && (

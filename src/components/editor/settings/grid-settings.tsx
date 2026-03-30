@@ -1,4 +1,3 @@
-
 "use client";
 
 import React from 'react';
@@ -8,7 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Switch } from '@/components/ui/switch';
 import { Slider } from '@/components/ui/slider';
 import { Input } from '@/components/ui/input';
-import { Trash2, Plus, GripVertical, Columns, PanelTop, LayoutGrid, Palette, MoveVertical } from 'lucide-react';
+import { Trash2, Plus, GripVertical, Columns, PanelTop, LayoutGrid, Palette, MoveVertical, Maximize } from 'lucide-react';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { HeaderSettings } from './header-settings';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -180,6 +179,21 @@ export function GridSettings() {
                   </div>
                 </div>
               )}
+            </div>
+
+            <div className="space-y-4 pt-2">
+              <div className="flex justify-between items-center">
+                <Label className="text-xs flex items-center gap-2"><Maximize className="w-3 h-3"/> Internal Padding</Label>
+                <span className="text-xs font-mono">{canvasState.mainGrid.padding}px</span>
+              </div>
+              <Slider 
+                value={[canvasState.mainGrid.padding]} 
+                min={0} max={60} step={2}
+                onValueChange={(val) => setCanvasState(prev => ({
+                  ...prev,
+                  mainGrid: { ...prev.mainGrid, padding: val[0] }
+                }))}
+              />
             </div>
 
             <div className="flex items-center justify-between mb-2">

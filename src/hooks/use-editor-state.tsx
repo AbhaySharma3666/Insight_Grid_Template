@@ -1,4 +1,3 @@
-
 "use client";
 
 import React, { createContext, useContext, useState, useCallback, useRef } from 'react';
@@ -41,6 +40,7 @@ interface CanvasState {
     enabled: boolean;
     heightFraction: number;
     columnGap: number;
+    padding: number;
     columns: ColumnDefinition[];
     hasShadow: boolean;
     hasBorder: boolean;
@@ -51,6 +51,7 @@ interface CanvasState {
     rows: RowDefinition[];
     columnGap: number;
     rowGap: number;
+    padding: number;
     hasShadow: boolean;
     hasBorder: boolean;
     borderColor?: string;
@@ -61,6 +62,7 @@ interface CanvasState {
     position: 'left' | 'right' | 'none';
     widthPercentage: number;
     panelGap: number;
+    padding: number;
     opacity: number;
     colorMode: 'section' | 'individual';
     sectionColor: string;
@@ -92,6 +94,7 @@ const DEFAULT_STATE: CanvasState = {
     enabled: true,
     heightFraction: 0.12,
     columnGap: 20,
+    padding: 0,
     hasShadow: true,
     hasBorder: false,
     colorMode: 'individual',
@@ -124,6 +127,7 @@ const DEFAULT_STATE: CanvasState = {
     ],
     columnGap: 20,
     rowGap: 20,
+    padding: 0,
     hasShadow: true,
     hasBorder: false,
     borderColor: '#DDDDDD',
@@ -134,6 +138,7 @@ const DEFAULT_STATE: CanvasState = {
     position: 'left',
     widthPercentage: 20,
     panelGap: 20,
+    padding: 0,
     opacity: 0.4,
     colorMode: 'individual',
     sectionColor: 'rgba(255,255,255,0.8)',
@@ -181,6 +186,7 @@ export function EditorProvider({ children }: { children: React.ReactNode }) {
         enabled: !!suggestion.header,
         heightFraction: suggestion.header?.heightFraction || 0.12,
         columnGap: prev.header.columnGap,
+        padding: 0,
         colorMode: 'individual',
         columns: suggestion.header?.columns.map((col, idx) => ({
           id: `h-col-${idx}-${Date.now()}`,
@@ -193,6 +199,7 @@ export function EditorProvider({ children }: { children: React.ReactNode }) {
       mainGrid: {
         ...prev.mainGrid,
         colorMode: 'individual',
+        padding: 0,
         rows: suggestion.mainGrid.rows.map((row, rIdx) => ({
           id: `row-${rIdx}-${Date.now()}`,
           heightFraction: row.heightFraction,
@@ -219,6 +226,7 @@ export function EditorProvider({ children }: { children: React.ReactNode }) {
         position: suggestion.sidePanel.position,
         widthPercentage: suggestion.sidePanel.widthPercentage || 20,
         panelGap: suggestion.sidePanel.panelGap || 20,
+        padding: 0,
         opacity: prev.sidePanel.opacity,
         colorMode: 'individual',
         internalGrid: suggestion.sidePanel.internalGrid ? {
